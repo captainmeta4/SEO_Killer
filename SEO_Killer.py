@@ -155,7 +155,7 @@ class Bot(object):
                         self.banlist['banlist'].pop(message.subject)
                         self.banlist['unbanned'].append(message.subject)
                         print(message.subject+" unbanned")
-                        r.edit_wiki_page(master_subreddit,'banlist',str(self.banlist),reason='unban '+message.subject)
+                        r.edit_wiki_page(master_subreddit,'banlist',str(self.banlist),reason='unban '+message.subject+"by /u/"+message.author.name)
                         self.update_pretty_banlist()
                     except KeyError:
                         r.send_message(message.author,"Error",message.subject+" was not banned.")
@@ -171,10 +171,12 @@ class Bot(object):
 
                             #check that submission id points to /r/SEO_Killer
                             if r.get_info(thing_id='t3_'+message.body).subreddit.display_name == master_subreddit.display_name:
+
+                                #add ban entry, update wikis
                                 self.banlist['banlist'][message.subject]=message.body
                                 self.banlist['recent_bans'].append(message.subject)
                                 r.send_message(message.author,"Ban added",message.subject+" added to ban list with reference http://redd.it/"+message.body)
-                                r.edit_wiki_page(master_subreddit,'banlist',str(self.banlist),reason="ban "+message.subject)
+                                r.edit_wiki_page(master_subreddit,'banlist',str(self.banlist),reason="ban "+message.subject+"by /u/"+message.author.name)
                                 print(message.subject+" added to ban list with reference http://redd.it/"+message.body)
                                 self.update_pretty_banlist()
                             else:
@@ -214,7 +216,7 @@ class Bot(object):
                     print("Removed submission to "+submission.domain+" in /r/"+submission.subreddit.display_name)
                 except praw.errors.ModeratorOrScopeRequired:
                     submission.report(reason='Known SEO site - http://redd.it/'+self.banlist['banlist'][submission.domain])
-                    print("Reported submission to "+submission.domain+" in /r/"+submission.subreddit.display_name)
+                    print("Reported submission to "+submission.domain+" in /r/"+submission.subreddit.display_name+" by /u/"+submission.author.name)
 
     @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def run(self):
