@@ -246,6 +246,8 @@ class Bot(object):
 
     @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def weekly_update_messages():
+
+        print("sending weekly update")
         msg='The following domain(s) have been banned over the last week:\n\n'
 
         if len(self.banlist['recent_bans'])==0:
