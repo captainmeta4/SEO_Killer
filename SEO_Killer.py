@@ -90,7 +90,7 @@ class Bot(object):
                 #send greeting
                 msg=("Hello, moderators of /r/"+message.subreddit.display_name+"!\n\n"+
                      "I am a bot designed to help curb SEO spam on reddit. To that end, I keep and enforce a [global domain ban list](/r/SEO_Killer/wiki/ban_list)."+
-                     "\n\nIf you would like me to automatically remove submissions to domains on my ban list, give me posts permissions."+
+                     "\n\nIf you would like me to automatically remove submissions to domains on my ban list, give me posts permissions. "+
                      "If you would prefer that I report submissions instead, then *don't* give me posts permissions."+
                      "\n\nI will send you a weekly update with any domains that have been added to or removed from my global ban list. "+
                      "If you wish to override my global ban list for any particular domain, please make use of my per-subreddit whitelist feature."+
