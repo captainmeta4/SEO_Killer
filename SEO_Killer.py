@@ -211,8 +211,10 @@ class Bot(object):
             if (submission.domain in self.banlist['banlist'] and submission.domain not in self.whitelist[submission.subreddit.display_name]):
                 try:
                     submission.remove(spam=True)
+                    print("Removed submission to "+submission.domain+" in /r/"+submission.subreddit.display_name)
                 except praw.errors.ModeratorOrScopeRequired:
                     submission.report(reason='Known SEO site - http://redd.it/'+self.banlist['banlist'][submission.domain])
+                    print("Reported submission to "+submission.domain+" in /r/"+submission.subreddit.display_name)
 
     @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def run(self):
