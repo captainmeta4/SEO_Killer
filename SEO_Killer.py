@@ -107,9 +107,12 @@ class Bot(object):
                     if message.body == "whitelist":
                         print("whitelist query from /u/"+message.author.name+" about /r/"+message.subject)
                         msg = "The following domains are in the /r/"+message.subject+" whitelist:\n"
-                        
-                        for entry in self.whitelist[message.subject]:
-                            msg = msg +"\n* "+entry
+
+                        if len(self.whitelist[message.subject])==0:
+                            msg=msg + "\n* *none*"
+                        else:
+                            for entry in self.whitelist[message.subject].sort():
+                                msg = msg +"\n* "+entry
 
                         r.send_message(message.author,"Domain whitelist for /r/"+message.subject,msg)
 
