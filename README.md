@@ -33,11 +33,3 @@ Once per week, the bot will also send out a message with any additions/removals 
 ##Can I see the blacklist?
 
 Yes. The global blacklist is public information. It can be seen [here](http://reddit.com/r/seo_killer/wiki/ban_list). That wiki page is automatically updated whenever the blacklist is changed.
-
-#About the subreddit
-
-This is a place to submit information about SEO-spammy domains. 
-
-##I found a SEO-spammy domain. What do I do?
-
-Submit it here, along with as much supporting evidence as you have. The moderators will review it and add it to the bot's master blacklist.
