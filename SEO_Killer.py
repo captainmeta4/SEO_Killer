@@ -101,7 +101,7 @@ class Bot(object):
             except:
                 pass
 
-            #Whitelist-related commants. Enclosed in try to protect against garbage input
+            #Whitelist-related commands. Enclosed in try to protect against garbage input
 
             try:
                 if message.author in r.get_moderators(message.subject) and message.subject in self.whitelist:
@@ -127,13 +127,13 @@ class Bot(object):
                                 self.whitelist[message.subject].remove(message.body)
                                 print(message.body+" removed from whitelist for /r/"+message.subject)
                                 r.send_message(message.author,"Whitelist Modified",message.body+" removed from whitelist for /r/"+message.subject)
-                                r.edit_wiki_page(master_subreddit,"whitelist",str(self.whitelist))
+                                r.edit_wiki_page(master_subreddit,"whitelist",str(self.whitelist),reason=message.body+" removed from whitelist for /r/"+message.subject+"by /u/"+message.author.name)
                                 continue
                             else:
                                 self.whitelist[message.subject].append(message.body)
                                 print(message.body+" added to whitelist for /r/"+message.subject)
                                 r.send_message(message.author,"Whitelist Modified",message.body+" added to whitelist for /r/"+message.subject)
-                                r.edit_wiki_page(master_subreddit,"whitelist",str(self.whitelist))
+                                r.edit_wiki_page(master_subreddit,"whitelist",str(self.whitelist),reason=message.body+" added to whitelist for /r/"+message.subject+"by /u/"+message.author.name)
                                 continue
             except:
                 pass #I could respond with an error message here but I don't want to accidentally get into bot ping-pong
