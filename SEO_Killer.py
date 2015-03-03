@@ -56,7 +56,7 @@ class Bot(object):
 
     @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def update_pretty_banlist(self):
-            pretty_list = "The following domains are in the /u/SEO_Killer global blacklist:\n"
+            pretty_list = "The following domains are in the /u/SEO_Killer global blacklist. Clicking one will take you to the corresponding /r/SEO_Killer report.\n"
             raw_list = []
             for entry in self.banlist['banlist']:
                 raw_list.append(entry)
@@ -64,7 +64,7 @@ class Bot(object):
             raw_list.sort()
             
             for entry in raw_list:
-                pretty_list = pretty_list+"\n* "+entry
+                pretty_list = pretty_list+"\n* ["+entry+"](http://redd.it/"+self.banlist['banlist'][entry]+")"
 
             r.edit_wiki_page(master_subreddit,"ban_list",pretty_list)
 
