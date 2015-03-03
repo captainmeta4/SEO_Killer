@@ -1,1 +1,1 @@
-bot: python Mod_Button_Bot.py
+bot: python SEO_Killer.py
