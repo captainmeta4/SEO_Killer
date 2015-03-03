@@ -2,7 +2,7 @@
 
 /u/SEO_Killer is a bot which scans its moderated subreddits for posts to sites known to engage in "black-hat SEO". It will remove such posts automatically, or alert subreddit moderators by reporting the post.
 
-Operational details can be found [here](/r/SEO_Killer/wiki/guide)
+Operational details can be found [here](http://reddit.com/r/SEO_Killer/wiki/guide)
 
 ## Can this bot be used to ban any domain from all of the bot's moderated subreddits?
 
@@ -28,11 +28,11 @@ Once per week, the bot will also send out a message with any additions/removals 
 
 ##How can I edit my subreddit whitelist?
 
-[See full operational details here](/r/SEO_Killer/wiki/guide)
+[See full operational details here](http://reddit.com/r/SEO_Killer/wiki/guide)
 
 ##Can I see the blacklist?
 
-Yes. The global blacklist is public information. It can be seen [here](/r/seo_killer/wiki/ban_list). That wiki page is automatically updated whenever the blacklist is changed.
+Yes. The global blacklist is public information. It can be seen [here](http://reddit.com/r/seo_killer/wiki/ban_list). That wiki page is automatically updated whenever the blacklist is changed.
 
 #About the subreddit
 
