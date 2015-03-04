@@ -4,6 +4,7 @@ import os
 from retrying import retry
 from collections import deque
 import re
+from requests.exceptions import HTTPError
 
 
 #initialize reddit
@@ -32,27 +33,53 @@ class Bot(object):
         try:
             self.already_done = eval(r.get_wiki_page(master_subreddit,"already_done").content_md)
             print("already-done cache loaded")
-            
-        except:
-            print("already-done cache not loaded. Starting with blank cache")
-            self.already_done = deque([],maxlen=1000)
-            r.edit_wiki_page(master_subreddit,'already_done',str(self.already_done))
+        except HTTPError as e:
+            if e.response.status_code == 403:
+                print("incorrect permissions")
+                r.send_message(master_subreddit,"Incorrect permissions","I don't have access to the already_done wiki page")
+            elif e.response.status_code == 404:
+                print("already-done cache not loaded. Starting with blank cache")
+                self.already_done = deque([],maxlen=1000)
+                r.edit_wiki_page(master_subreddit,'already_done',str(self.already_done))
+            elif e.response.status_code in [502, 503, 504]:
+                print("reddit's crapping out on us")
+                raise e #triggers the @retry module
+            else:
+                raise e
 
         try:
             self.banlist = eval(r.get_wiki_page(master_subreddit,"banlist").content_md)
             print("banlist cache loaded")
-        except:
-            print("banlist cache not loaded. Starting with blank banlist")
-            self.banlist={'banlist':{},'recent_bans':[],'unbanned':[]}
-            r.edit_wiki_page(master_subreddit,'ban_list',str(self.banlist))
+        except HTTPError as e:
+            if e.response.status_code == 403:
+                print("incorrect permissions")
+                r.send_message(master_subreddit,"Incorrect permissions","I don't have access to the banlist wiki page")
+            elif e.response.status_code == 404:
+                print("banlist cache not loaded. Starting with blank banlist")
+                self.banlist={'banlist':{},'recent_bans':[],'unbanned':[]}
+                r.edit_wiki_page(master_subreddit,'ban_list',str(self.banlist))
+            elif e.response.status_code in [502, 503, 504]:
+                print("reddit's crapping out on us")
+                raise e #triggers the @retry module
+            else:
+                raise e
         
         try:
             self.whitelist = eval(r.get_wiki_page(master_subreddit,"whitelist").content_md)
             print("whitelist cache loaded")
-        except:
-            print("whitelist cache not loaded. Starting with blank whitelist")
-            self.whitelist={}
-            r.edit_wiki_page(master_subreddit,'whitelist',str(self.whitelist))
+        except HTTPError as e:
+            if e.response.status_code == 403:
+                print("incorrect permissions")
+                r.send_message(master_subreddit,"Incorrect permissions","I don't have access to the whitelist wiki page")
+            elif e.response.status_code == 404:
+                print("whitelist cache not loaded. Starting with blank whitelist")
+                self.whitelist={}
+                r.edit_wiki_page(master_subreddit,'whitelist',str(self.whitelist))
+            elif e.response.status_code in [502, 503, 504]:
+                print("reddit's crapping out on us")
+                raise e #triggers the @retry module
+            else:
+                 raise e
 
     @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def update_pretty_banlist(self):
