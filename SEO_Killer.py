@@ -5,10 +5,13 @@ from retrying import retry
 from collections import deque
 import re
 from requests.exceptions import HTTPError
+import requests
 
 
 #initialize reddit
-r=praw.Reddit(user_agent='SEO Killer Bot by /u/captainmeta4')
+user_agent='SEO Killer Bot by /u/captainmeta4'
+r=praw.Reddit(user_agent=user_agent)
+headers={'User-Agent': user_agent}
 
 #set globals
 username = 'SEO_Killer'
@@ -17,6 +20,71 @@ password = os.environ.get('password')
 master_subreddit=r.get_subreddit('SEO_Killer')
 
 class Bot(object):
+
+    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+    def analyze_domain(self, domain):
+        print('Analyzing domain: '+domain)
+        i=0
+        authors=[]
+        author_total_posts=[]
+        author_domain_posts=[]
+        deleted_users=False
+        shadowbanned_users=0
+
+        #calculate # unique users
+        
+        for submission in r.get_domain_listing(domain,sort='new',limit=1000):
+            i=i+1
+            try:
+                if submission.author.name not in authors:
+                    authors.append(submission.author.name)
+            except AttributeError:
+                deleted_users=True
+
+        print(str(i)+" submissions by "+str(len(authors))+" unique users")
+
+        author_total_posts=[0]*len(authors)
+        author_domain_posts=[0]*len(authors)
+
+        x=0
+        while x < len(authors): #not doing for x in range() because len(authors) can change as SB users are removed
+
+            #Check shadowban
+            u = requests.get("http://reddit.com/user/"+authors[x]+"/?limit=1", headers=headers)
+
+            #If shadowbanned...
+            if u.status_code==404:
+                print ("shadowbanned: /u/"+authors[x])
+                shadowbanned_users=shadowbanned_users+1
+                authors.pop(x)
+                author_total_posts.pop(x)
+                author_domain_posts.pop(x)
+                x=x-1
+
+            
+            else:
+                print ("checking: /u/"+authors[x])
+
+                #calculate submissions to that domain
+                for submission in r.get_redditor(authors[x]).get_submitted(sort='new', limit=100):
+                    author_total_posts[x]=author_total_posts[x]+1
+                    if submission.domain in domain or domain in submission.domain:
+                        author_domain_posts[x]=author_domain_posts[x]+1
+            x=x+1
+                        
+        msg=(domain+" has "+str(i)+" submissions by "+str(len(authors))+" unique users, of which "+str(shadowbanned_users)+
+             " are shadowbanned")
+
+        if deleted_users:
+             msg=msg+", plus one or more [deleted] users"
+
+        msg=(msg+".\n\nThe users who submitted to "+domain+" have the following data:\n\n"+
+             "|User|Total Submissions|Submissions to "+domain+"|% to "+domain+"|\n|-|-|-|-|\n")
+
+        for x in range(0,len(authors)):
+            msg=msg+"|"+authors[x]+"|"+str(author_total_posts[x])+"|"+str(author_domain_posts[x])+"|"+str(int(100*author_domain_posts[x]/author_total_posts[x]))+"% |\n"
+
+        return msg
 
     @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def login_bot(self):
@@ -187,6 +255,11 @@ class Bot(object):
                     except KeyError:
                         r.send_message(message.author,"Error",message.subject+" was not banned.")
                         print(message.subject+" was not banned")
+                        
+                #Check for domain analysis
+                if message.body == "analyze":
+                    
+                    r.send_message(message.author, "analyze "+message.subject, self.analyze_domain(message.subject))
 
                 #if it's not an unban, then it's a ban 
                 else:
