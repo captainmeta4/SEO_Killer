@@ -47,6 +47,7 @@ class Bot(object):
         author_domain_posts=[0]*len(authors)
 
         x=0
+        total_users=len(authors)
         while x < len(authors): #not doing for x in range() because len(authors) can change as SB users are removed
 
             #Check shadowban
@@ -72,7 +73,7 @@ class Bot(object):
                         author_domain_posts[x]=author_domain_posts[x]+1
             x=x+1
                         
-        msg=(domain+" has "+str(i)+" submissions by "+str(len(authors))+" unique users, of which "+str(shadowbanned_users)+
+        msg=(domain+" has "+str(i)+" submissions by "+str(total_users)+" unique users, of which "+str(shadowbanned_users)+
              " are shadowbanned")
 
         if deleted_users:
