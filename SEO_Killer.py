@@ -28,7 +28,6 @@ class Bot(object):
         authors=[]
         author_total_posts=[]
         author_domain_posts=[]
-        deleted_users=False
         shadowbanned_users=0
 
         #calculate # unique users
@@ -39,7 +38,7 @@ class Bot(object):
                 if submission.author.name not in authors:
                     authors.append(submission.author.name)
             except AttributeError:
-                deleted_users=True
+                pass
 
         print(str(i)+" submissions by "+str(len(authors))+" unique users")
 
@@ -73,11 +72,8 @@ class Bot(object):
                         author_domain_posts[x]=author_domain_posts[x]+1
             x=x+1
                         
-        msg=(domain+" has "+str(i)+" submissions by "+str(total_users)+" unique users, of which "+str(shadowbanned_users)+
+        msg=(domain+" has "+str(i)+" submissions by at least "+str(total_users)+" unique users, of which "+str(shadowbanned_users)+
              " are shadowbanned")
-
-        if deleted_users:
-             msg=msg+", plus one or more [deleted] users"
 
         msg=(msg+".\n\nThe users who submitted to "+domain+" have the following data:\n\n"+
              "|User|Total Submissions|Submissions to "+domain+"|% to "+domain+"|\n|-|-|-|-|\n")
