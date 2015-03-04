@@ -298,7 +298,7 @@ class Bot(object):
 
         self.banlist['recent_bans']=[]
         self.banlist['unbanned']=[]
-        
+        r.edit_wiki_page(master_subreddit,'banlist',str(self.banlist),reason='clear the recent bans and unbanned lists')
 
 #Master bot process
 if __name__=='__main__':    
