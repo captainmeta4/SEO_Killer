@@ -237,7 +237,7 @@ class Bot(object):
             self.already_done.append(submission.id)
 
             #remove/report offending posts
-            if (submission.domain in self.banlist['banlist'] and submission.domain not in self.whitelist[submission.subreddit.display_name]):
+            if any(entry in submission.domain for entry in self.banlist['banlist']) and submission.domain not in self.whitelist[submission.subreddit.display_name]:
                 try:
                     submission.remove(spam=True)
                     print("Removed submission to "+submission.domain+" in /r/"+submission.subreddit.display_name)
