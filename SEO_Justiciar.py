@@ -95,7 +95,7 @@ class Bot(object):
         #(also allows for easy on-the-fly adjustment of parameters)
         if (action=='return'                                                            #If this was a request,
             or total_users < int(float(os.environ.get('user_ratio')) * total_posts)     #or if number of unique authors is low compared to number of total posts
-            or total_users * float(os.environ.get('sb_ratio')) < len(authors)           #or if number of shadowbanned users is a high fraction of total unique authors
+            or total_users * float(os.environ.get('sb_ratio')) < shadowbanned_users     #or if number of shadowbanned users is a high fraction of total unique authors
             or throwaway_users >= float(os.environ.get('throwaway_ratio'))*len(authors) #or if there are too many submissions by throwaway accounts
             or spamming_users >= float(os.environ.get('spammer_threshold'))):           #or if this domain is being spammed by too many users
 
