@@ -186,11 +186,12 @@ class Bot(object):
 
 
         
-            #avoid duplicate work and whitelisted sites
+            #avoid duplicate work, whitelisted sites, and selfposts
             
             if (any(entry in submission.domain for entry in self.already_done)
                 or submission.domain in self.already_done
-                or submission.domain in self.banlist['banlist']):
+                or submission.domain in self.banlist['banlist']
+                or submission.is_self):
                 continue
 
             self.already_done.append(submission.domain)
