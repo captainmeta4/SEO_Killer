@@ -54,30 +54,36 @@ class Bot(object):
             #Check shadowban
             u = requests.get("http://reddit.com/user/"+authors[x]+"/?limit=1", headers=headers)
 
-            #If shadowbanned...
-            if u.status_code==404:
-                print ("shadowbanned: /u/"+authors[x])
-                shadowbanned_users=shadowbanned_users+1
-                authors.pop(x)
-                author_total_posts.pop(x)
-                author_domain_posts.pop(x)
-                x=x-1
 
-            
-            else:
+            try:
                 print ("checking: /u/"+authors[x])
-
-                #calculate submissions to that domain
                 for submission in r.get_redditor(authors[x]).get_submitted(sort='new', limit=100):
                     author_total_posts[x]=author_total_posts[x]+1
                     if submission.domain in domain or domain in submission.domain:
                         author_domain_posts[x]=author_domain_posts[x]+1
 
-                #Check if account is throwaway or spammy
-                if author_total_posts[x]<2:
-                    throwaway_users = throwaway_users+1
-                if author_domain_posts[x]/author_total_posts[x]>float(os.environ.get('spam_threshold')):
-                    spamming_users = spammy_users+1
+            except HTTPError as e:
+                if e.response.status_code == 404:
+                    print ("shadowbanned: /u/"+authors[x])shadowbanned_users=shadowbanned_users+1
+                    authors.pop(x)
+                    author_total_posts.pop(x)
+                    author_domain_posts.pop(x)
+                    x=x-1
+                elif e.response.status_code in [502, 503, 504]:
+                    print("reddit's crapping out on us")
+                    raise e #triggers the @retry module
+                else:
+                    raise e
+
+                
+                else:
+                
+
+            #Check if account is throwaway or spammy
+            if author_total_posts[x]<2:
+                throwaway_users = throwaway_users+1
+            if author_domain_posts[x]/author_total_posts[x]>float(os.environ.get('spam_threshold')):
+                spamming_users = spammy_users+1
 
             x=x+1
 
