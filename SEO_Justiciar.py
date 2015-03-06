@@ -47,7 +47,7 @@ class Bot(object):
         #if there are enough unique authors, don't bother doing full analytics because the domain is probably legit
         #(unless the analysis was ordered instead of automatic)
         if (len(authors) > float(os.environ.get('author_count_threshold'))
-            and action=='submit':
+            and action=='submit'):
             return
             
         author_total_posts=[0]*len(authors)
