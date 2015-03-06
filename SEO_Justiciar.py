@@ -85,7 +85,7 @@ class Bot(object):
             if author_total_posts[x]<2:
                 throwaway_users = throwaway_users+1
             if (author_domain_posts[x]/author_total_posts[x]>float(os.environ.get('spam_threshold'))
-                and author_total_posts > 5:
+                and author_total_posts > 5):
                 spamming_users = spamming_users+1
 
             x=x+1
@@ -199,7 +199,12 @@ class Bot(object):
 
             self.analyze_domain(submission.domain, 'submit')
             
-            break #just do one submission and then rerun cycle to check messages 
+            break #just do one submission and then rerun cycle to check messages
+
+        else:
+            #If there were no entries to check, wait 60 seconds
+            print ('waiting 60 seconds')
+            time.sleep(60)
 
 
     #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
@@ -212,8 +217,6 @@ class Bot(object):
         
             self.check_messages()
             self.process_submissions()
-
-
             r.edit_wiki_page(master_subreddit,"justiciar_alreadydone",str(self.already_done))
             print("cache saved to reddit")
                 
