@@ -44,6 +44,11 @@ class Bot(object):
 
         print(str(total_posts)+" submissions by "+str(len(authors))+" unique users")
 
+        #new domains can't get a pass until there's at least a couple of posts out
+        if total_posts > 10:
+            self.already_done.append(submission.domain)
+
+        
         #if there are enough unique authors, don't bother doing full analytics because the domain is probably legit
         #(unless the analysis was ordered instead of automatic)
         if (len(authors) > float(os.environ.get('author_count_threshold'))
@@ -194,7 +199,7 @@ class Bot(object):
                 or submission.is_self):
                 continue
 
-            self.already_done.append(submission.domain)
+            
 
             self.analyze_domain(submission.domain, 'submit')
             
