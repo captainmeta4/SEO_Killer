@@ -45,11 +45,10 @@ class Bot(object):
         print(str(total_posts)+" submissions by "+str(len(authors))+" unique users")
 
         #if there are enough unique authors, don't bother doing full analytics because the domain is probably legit
-        if len(authors) > float(os.environ.get('author_count_threshold')):
-            if action=='submit':
-                return
-            else:
-                return "That domain has a lot of unique submitters and is most likely legit"
+        #(unless the analysis was ordered instead of automatic)
+        if (len(authors) > float(os.environ.get('author_count_threshold'))
+            and action=='submit':
+            return
             
         author_total_posts=[0]*len(authors)
         author_domain_posts=[0]*len(authors)
