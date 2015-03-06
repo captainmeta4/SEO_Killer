@@ -44,6 +44,13 @@ class Bot(object):
 
         print(str(total_posts)+" submissions by "+str(len(authors))+" unique users")
 
+        #if there are enough unique authors, don't bother doing full analytics because the domain is probably legit
+        if len(authors) > float(os.environ.get('author_count_threshold')):
+            if action=='submit:
+                return
+            else:
+                return "That domain has a lot of unique submitters and is most likely legit"
+            
         author_total_posts=[0]*len(authors)
         author_domain_posts=[0]*len(authors)
 
@@ -89,14 +96,12 @@ class Bot(object):
         if (action=='return'                                                            #If this was a request,
             or total_users < int(float(os.environ.get('user_ratio')) * total_posts)     #or if number of unique authors is low compared to number of total posts
             or total_users * float(os.environ.get('sb_ratio')) < len(authors)           #or if number of shadowbanned users is a high fraction of total unique authors
-            or throwaway_users >= float(os.environ.get('throwaway_threshold'))          #or if there are too many submissions by throwaway accounts
+            or throwaway_users >= float(os.environ.get('throwaway_ratio'))*len(authors) #or if there are too many submissions by throwaway accounts
             or spamming_users >= float(os.environ.get('spammer_threshold'))):           #or if this domain is being spammed by too many users
 
             print('assembling message')
             
-            msg=(domain+" has "+str(total_posts)+" submissions by at least "+str(total_users)+" unique users. An estimated "+
-                 str(total_posts-sum(author_domain_posts))+" submissions are by "+str(shadowbanned_users)+
-                 " shadowbanned users."+
+            msg=(domain+" has "+str(total_posts)+" submissions by at least "+str(total_users)+" unique users, of whom "+shadowbanned_users+" are shadowbanned."
                  "\n\nThe users who submitted to "+domain+" have the following data:\n\n"+
                  "|User|Total Submissions|Submissions to "+domain+"|% to "+domain+"|\n|-|-|-|-|\n")
             for x in range(0,len(authors)):
@@ -191,7 +196,8 @@ class Bot(object):
             self.already_done.append(submission.domain)
 
             self.analyze_domain(submission.domain, 'submit')
-            break #just do one submission and then rerun cycle
+            
+            break #just do one submission and then rerun cycle to check messages 
 
 
     #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
