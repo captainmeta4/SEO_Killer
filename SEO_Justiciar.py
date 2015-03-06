@@ -83,7 +83,7 @@ class Bot(object):
             if author_total_posts[x]<2:
                 throwaway_users = throwaway_users+1
             if author_domain_posts[x]/author_total_posts[x]>float(os.environ.get('spam_threshold')):
-                spamming_users = spammy_users+1
+                spamming_users = spamming_users+1
 
             x=x+1
 
