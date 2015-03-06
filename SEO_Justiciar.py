@@ -64,7 +64,8 @@ class Bot(object):
 
             except HTTPError as e:
                 if e.response.status_code == 404:
-                    print ("shadowbanned: /u/"+authors[x])shadowbanned_users=shadowbanned_users+1
+                    print ("shadowbanned: /u/"+authors[x])
+                    shadowbanned_users=shadowbanned_users+1
                     authors.pop(x)
                     author_total_posts.pop(x)
                     author_domain_posts.pop(x)
