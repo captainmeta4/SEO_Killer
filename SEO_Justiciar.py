@@ -235,6 +235,8 @@ class Bot(object):
             if message.body != "analyze":
                 print('ignoring a message')
                 continue
+
+            message.mark_as_read()
             
             print('analysis message')
             if self.is_valid_domain(message.subject):
