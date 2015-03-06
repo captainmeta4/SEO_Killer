@@ -46,7 +46,7 @@ class Bot(object):
 
         #if there are enough unique authors, don't bother doing full analytics because the domain is probably legit
         if len(authors) > float(os.environ.get('author_count_threshold')):
-            if action=='submit:
+            if action=='submit':
                 return
             else:
                 return "That domain has a lot of unique submitters and is most likely legit"
