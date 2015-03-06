@@ -75,9 +75,6 @@ class Bot(object):
                     raise e #triggers the @retry module
                 else:
                     raise e
-
-                
-                else:
                 
 
             #Check if account is throwaway or spammy
