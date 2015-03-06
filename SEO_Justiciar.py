@@ -51,9 +51,6 @@ class Bot(object):
         total_users=len(authors)
         while x < len(authors): #not doing for x in range() because len(authors) can change as SB users are removed
 
-            #Check shadowban
-            u = requests.get("http://reddit.com/user/"+authors[x]+"/?limit=1", headers=headers)
-
 
             try:
                 print ("checking: /u/"+authors[x])
