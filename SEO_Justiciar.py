@@ -101,7 +101,7 @@ class Bot(object):
 
             print('assembling message')
             
-            msg=(domain+" has "+str(total_posts)+" submissions by at least "+str(total_users)+" unique users, of whom "+str(shadowbanned_users)+" are shadowbanned."
+            msg=("["+domain+"](http://reddit.com/domain/"+domain+") has "+str(total_posts)+" submissions by at least "+str(total_users)+" unique users, of whom "+str(shadowbanned_users)+" are shadowbanned."
                  "\n\nThe users who submitted to "+domain+" have the following data:\n\n"+
                  "|User|Total Submissions|Submissions to "+domain+"|% to "+domain+"|\n|-|-|-|-|\n")
             for x in range(0,len(authors)):
