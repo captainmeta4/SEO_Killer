@@ -95,6 +95,8 @@ class Bot(object):
             or throwaway_users >= float(os.environ.get('throwaway_threshold'))          #or if there are too many submissions by throwaway accounts
             or spamming_users >= float(os.environ.get('spammer_threshold'))):           #or if this domain is being spammed by too many users
 
+            print('assembling message')
+            
             msg=(domain+" has "+str(total_posts)+" submissions by at least "+str(total_users)+" unique users. An estimated "+
                  str(total_posts-sum(author_domain_posts))+" submissions are by "+str(shadowbanned_users)+
                  " shadowbanned users."+
@@ -104,6 +106,7 @@ class Bot(object):
                 msg=msg+"| /u/"+authors[x]+"|"+str(author_total_posts[x])+"|"+str(author_domain_posts[x])+"|"+str(int(100*author_domain_posts[x]/author_total_posts[x]))+"% |\n"
 
             if action == 'submit':
+                print('submitting to /r/SEO_Killer')
                 r.submit("SEO_Killer","overview for "+domain,text=msg)
             elif action == 'return':
                 return msg
@@ -177,18 +180,21 @@ class Bot(object):
     def process_submissions(self):
         print('processing submissions')
 
-        for submission in r.get_subreddit('mod').get_new(limit=10):
+        for submission in r.get_subreddit('mod').get_new(limit=100):
 
 
         
             #avoid duplicate work and whitelisted sites
             
-            if any(entry in submission.domain for entry in self.already_done) or submission.domain in self.already_done:
+            if (any(entry in submission.domain for entry in self.already_done)
+                or submission.domain in self.already_done
+                or submission.domain in self.banlist['banlist']):
                 continue
 
-            self.already_done.append(submission.id)
+            self.already_done.append(submission.domain)
 
             self.analyze_domain(submission.domain, 'submit')
+            break #just do one submission and then rerun cycle
 
 
     #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
@@ -202,17 +208,9 @@ class Bot(object):
             self.check_messages()
             self.process_submissions()
 
-            #Every 5 minutes, save the already-done cache. Other caches are always saved on editing
-            if time.localtime().tm_min in [0,5,10,15,20,25,30,35,40,45,50,55]:
-                print("saving already-done cache")
-                r.edit_wiki_page(master_subreddit,"already_done",str(self.already_done))
-            
-            print("sleeping..")
-    
-            #Run cycle on XX:XX:00
-            time.sleep(1)
-            while time.localtime().tm_sec != 0 :
-                time.sleep(1)
+
+            r.edit_wiki_page(master_subreddit,"justiciar_alreadydone",str(self.already_done))
+            print("cache saved to reddit")
                 
     def is_valid_domain(self, domain):
         if re.search("^[a-zA-Z0-9][-.a-zA-Z0-9]*\.[-.a-zA-Z0-9]*[a-zA-Z0-9]$",domain):
