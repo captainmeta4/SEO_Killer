@@ -84,7 +84,8 @@ class Bot(object):
             #Check if account is throwaway or spammy
             if author_total_posts[x]<2:
                 throwaway_users = throwaway_users+1
-            if author_domain_posts[x]/author_total_posts[x]>float(os.environ.get('spam_threshold')):
+            if (author_domain_posts[x]/author_total_posts[x]>float(os.environ.get('spam_threshold'))
+                and author_total_posts > 5:
                 spamming_users = spamming_users+1
 
             x=x+1
