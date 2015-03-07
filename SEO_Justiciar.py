@@ -47,7 +47,7 @@ class Bot(object):
 
         #new domains don't get a free pass with easy analytics until there's several posts
         if total_posts <10:
-            self.already_done['domains'].pop(domain)
+            self.already_done['domains'].remove(domain)
             return
         
         #if there are enough unique authors, don't bother doing full analytics because the domain is probably legit
