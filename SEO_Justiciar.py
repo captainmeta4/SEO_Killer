@@ -206,7 +206,7 @@ class Bot(object):
 
             #check to see if the domain was popped for low submission count, and if so, record the id
             if submission.domain not in self.already_done['domains']:
-                already_done['submissions'].append(submission.id)
+                self.already_done['submissions'].append(submission.id)
             
             break #just do one submission and then rerun cycle to check messages
 
