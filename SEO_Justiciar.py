@@ -111,7 +111,7 @@ class Bot(object):
                  "\n\nThe users who submitted to "+domain+" have the following data:\n\n"+
                  "|User|Total Submissions|Submissions to "+domain+"|% to "+domain+"|\n|-|-|-|-|\n")
             for x in range(0,len(authors)):
-                msg=msg+"| /u/"+authors[x]+"|"+str(author_total_posts[x])+"|"+str(author_domain_posts[x])+"|"+str(int(100*author_domain_posts[x]/author_total_posts[x]))+"% |\n"
+                msg=msg+"| u/"+authors[x]+"|"+str(author_total_posts[x])+"|"+str(author_domain_posts[x])+"|"+str(int(100*author_domain_posts[x]/author_total_posts[x]))+"% |\n"
 
             if action == 'submit':
                 print('submitting to /r/SEO_Killer')
