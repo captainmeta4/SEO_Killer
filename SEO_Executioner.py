@@ -202,7 +202,7 @@ class Bot(object):
                 #if it's not an unban, then it's a ban 
                 else:
                     
-                    #Check for duplicate ban list entry
+                    #Check for duplicate ban list entry - this is done as nested Ifs rather than "if... and... and... :" to prevent erroring on r.get_info
                     if message.subject not in self.banlist['banlist']:
 
                         #Check that submission id is valid
@@ -218,6 +218,10 @@ class Bot(object):
                                 r.edit_wiki_page(master_subreddit,'banlist',str(self.banlist),reason="ban "+message.subject+" by /u/"+message.author.name)
                                 print(message.subject+" added to ban list with reference http://redd.it/"+message.body)
                                 self.update_pretty_banlist()
+
+                                #Clear already_done so that any recent submissions will be removed
+                                self.already_done = deque([],maxlen=200)
+                                
                             else:
                                 print("wrong subreddit for submission id")
                                 r.send_message(message.author,"Error","The shortlink http://redd.it/"+message.body+" does not point to /r/"+master_subreddit.display_name)
