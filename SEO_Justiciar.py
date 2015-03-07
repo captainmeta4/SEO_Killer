@@ -46,7 +46,7 @@ class Bot(object):
         print(str(total_posts)+" submissions by "+str(len(authors))+" unique users")
 
         #new domains don't get a free pass with easy analytics until there's several posts
-        if totalposts <10:
+        if total_posts <10:
             self.already_done['domains'].pop(domain)
             return
         
