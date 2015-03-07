@@ -24,6 +24,7 @@ class Bot(object):
     #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def analyze_domain(self, domain, action):
         print('Analyzing domain: '+domain)
+        
         total_posts=0
         authors=[]
         author_total_posts=[]
@@ -44,10 +45,10 @@ class Bot(object):
 
         print(str(total_posts)+" submissions by "+str(len(authors))+" unique users")
 
-        #new domains can't get a pass until there's at least a couple of posts out
-        if total_posts > 10:
-            self.already_done.append(submission.domain)
-
+        #new domains don't get a free pass with easy analytics until there's several posts
+        if totalposts <10:
+            self.already_done['domains'].pop(domain)
+            return
         
         #if there are enough unique authors, don't bother doing full analytics because the domain is probably legit
         #(unless the analysis was ordered instead of automatic)
@@ -139,7 +140,7 @@ class Bot(object):
                 r.send_message(master_subreddit,"Incorrect permissions","I don't have access to the justiciar_alreadydone wiki page")
             elif e.response.status_code == 404:
                 print("already-done cache not loaded. Starting with blank cache")
-                self.already_done = deque([],maxlen=200)
+                self.already_done = {'domains':[],'submissions':deque([],maxlen=100)}
                 r.edit_wiki_page(master_subreddit,'already_done',str(self.already_done))
             elif e.response.status_code in [502, 503, 504]:
                 print("reddit's crapping out on us")
@@ -193,15 +194,19 @@ class Bot(object):
         
             #avoid duplicate work, whitelisted sites, and selfposts
             
-            if (any(entry in submission.domain for entry in self.already_done)
-                or submission.domain in self.already_done
+            if (any(entry in submission.domain for entry in self.already_done['domains'])
+                or submission.domain in self.already_done['domains']
+                or submission.id in self.already_done['submissions']
                 or submission.domain in self.banlist['banlist']
                 or submission.is_self):
                 continue
 
-            
-
+            self.already_done['domains'].append(submission.domain)
             self.analyze_domain(submission.domain, 'submit')
+
+            #check to see if the domain was popped for low submission count, and if so, record the id
+            if submission.domain not in self.already_done['domains']:
+                already_done['submissions'].append(submission.id)
             
             break #just do one submission and then rerun cycle to check messages
 
@@ -221,6 +226,7 @@ class Bot(object):
         
             self.check_messages()
             self.process_submissions()
+            
             r.edit_wiki_page(master_subreddit,"justiciar_alreadydone",str(self.already_done))
             print("cache saved to reddit")
                 
