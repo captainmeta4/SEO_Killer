@@ -109,6 +109,11 @@ class Bot(object):
             if message.body == "analyze":   
                 continue
 
+            #Ignore post replies
+            if message.subject == "comment reply":
+                message.mark_as_read()
+                continue
+
             #Just assume all messages are a mod invite, and fetch modlist if invite accepted
             try:
                 r.accept_moderator_invite(message.subreddit.display_name)
@@ -118,8 +123,6 @@ class Bot(object):
                 if message.subreddit.display_name not in self.whitelist:
                     self.whitelist[message.subreddit.display_name]=[]
                     r.edit_wiki_page(master_subreddit,'whitelist',str(self.whitelist))
-
-                message.mark_as_read()
                 
                 #send greeting
                 msg=("Hello, moderators of /r/"+message.subreddit.display_name+"!\n\n"+
@@ -140,7 +143,6 @@ class Bot(object):
             try:
                 if message.author in r.get_moderators(message.subject) and message.subject in self.whitelist:
 
-                    message.mark_as_read()
                     #Read whitelist
                     if message.body == "whitelist":
                         print("whitelist query from /u/"+message.author.name+" about /r/"+message.subject)
@@ -179,7 +181,6 @@ class Bot(object):
 
                 #check first to see if it's an unban
                 if message.body == "unban":
-                    message.mark_as_read()
                     print("unban order "+message.subject)
 
                     try:
@@ -200,8 +201,6 @@ class Bot(object):
 
                 #if it's not an unban, then it's a ban 
                 else:
-
-                    message.mark_as_read()
                     
                     #Check for duplicate ban list entry
                     if message.subject not in self.banlist['banlist']:
@@ -229,7 +228,8 @@ class Bot(object):
                         print("duplicate ban entry")
                         r.send_message(message.author,"Duplicate ban",message.subject+" is already banned with reference http://redd.it/"+self.banlist['banlist'][message.subject]+
                                        "\n\nTo change the reference, un-ban and re-ban "+message.subject)
-
+            message.mark_as_read()
+            
     @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def is_valid_domain(self, domain):
         if re.search("^[a-zA-Z0-9][-.a-zA-Z0-9]*\.[-.a-zA-Z0-9]*[a-zA-Z0-9]$",domain):
