@@ -110,9 +110,15 @@ class Bot(object):
             msg=("["+domain+"](http://reddit.com/domain/"+domain+") has "+str(total_posts)+" submissions by at least "+str(total_users)+" unique users, of whom "+str(shadowbanned_users)+" are shadowbanned."
                  "\n\nThe users who submitted to "+domain+" have the following data:\n\n"+
                  "|User|Total Submissions|Submissions to "+domain+"|% to "+domain+"|\n|-|-|-|-|\n")
-            for x in range(0,len(authors)):
-                msg=msg+"| u/"+authors[x]+"|"+str(author_total_posts[x])+"|"+str(author_domain_posts[x])+"|"+str(int(100*author_domain_posts[x]/author_total_posts[x]))+"% |\n"
 
+            #If there are few enough authors (3 or less) that the post would generate username mentions, do u/username instead of /u/username
+            if len(authors)>3:
+                for x in range(0,len(authors)):
+                    msg=msg+"| /u/"+authors[x]+"|"+str(author_total_posts[x])+"|"+str(author_domain_posts[x])+"|"+str(int(100*author_domain_posts[x]/author_total_posts[x]))+"% |\n"
+            else:
+                for x in range(0,len(authors)):
+                    msg=msg+"| u/"+authors[x]+"|"+str(author_total_posts[x])+"|"+str(author_domain_posts[x])+"|"+str(int(100*author_domain_posts[x]/author_total_posts[x]))+"% |\n"
+                
             if action == 'submit':
                 print('submitting to /r/SEO_Killer')
                 r.submit("SEO_Killer","overview for "+domain,text=msg)
