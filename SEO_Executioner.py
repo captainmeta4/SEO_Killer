@@ -272,7 +272,7 @@ class Bot(object):
 
             #Check if it's time for weekly update messages to go out
             #Monday morning at midnight
-            if time.localtime().tm_wday==0 and time.localtime().tm_hour==15 and time.localtime().tm_min==48:
+            if time.localtime().tm_wday==0 and time.localtime().tm_hour==0 and time.localtime().tm_min==0:
                 self.weekly_update_messages()
         
             self.check_messages()
@@ -290,16 +290,19 @@ class Bot(object):
             while time.localtime().tm_sec != 0 :
                 time.sleep(1)
 
-    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def weekly_update_messages(self):
 
         print("sending weekly update")
         msg='The following domain(s) have been banned over the last week:\n\n'
 
+        self.banlist['recent_bans'].sort()
+        self.banlist['unbanned'].sort()
+
         if len(self.banlist['recent_bans'])==0:
             msg = msg+"* *none*\n"
         else:
-            for item in self.banlist['recent_bans'].sort():
+            for item in self.banlist['recent_bans']:
                 msg=msg+"* "+item+"\n"
 
         msg = msg+"\n The following domain(s) have been removed from the ban list over the last week:\n\n"
@@ -307,10 +310,11 @@ class Bot(object):
         if len(self.banlist['unbanned'])==0:
             msg = msg+"* *none*\n"
         else:
-            for item in self.banlist['unbanned'].sort():
+            for item in self.banlist['unbanned']:
                 msg=msg+"* "+item+"\n"
 
         for subreddit in r.get_my_moderation():
+            print('sending message to /r/'+subreddit.display_name)
             r.send_message(subreddit,"Weekly Ban List Update Message",msg)
 
         self.banlist['recent_bans']=[]
