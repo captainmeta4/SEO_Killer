@@ -294,7 +294,7 @@ class Bot(object):
     def weekly_update_messages(self):
 
         print("sending weekly update")
-        msg='The following domain(s) have been banned over the last week:\n\n'
+        msg='The following domain(s) have been banned over the last week. Click any entry to view the corresponding /r/SEO_Killer submission.\n\n'
 
         self.banlist['recent_bans'].sort()
         self.banlist['unbanned'].sort()
@@ -303,7 +303,7 @@ class Bot(object):
             msg = msg+"* *none*\n"
         else:
             for item in self.banlist['recent_bans']:
-                msg=msg+"* "+item+"\n"
+                msg=msg+"* ["+item+"](http://redd.it/"+self.banlist['banlist'][item]")\n"
 
         msg = msg+"\n The following domain(s) have been removed from the ban list over the last week:\n\n"
 
