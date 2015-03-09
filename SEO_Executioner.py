@@ -272,7 +272,7 @@ class Bot(object):
 
             #Check if it's time for weekly update messages to go out
             #Monday morning at midnight
-            if time.localtime().tm_wday==0 and time.localtime().tm_hour==15 and time.localtime().tm_min==45:
+            if time.localtime().tm_wday==0 and time.localtime().tm_hour==15 and time.localtime().tm_min==48:
                 self.weekly_update_messages()
         
             self.check_messages()
@@ -290,7 +290,7 @@ class Bot(object):
             while time.localtime().tm_sec != 0 :
                 time.sleep(1)
 
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def weekly_update_messages(self):
 
         print("sending weekly update")
