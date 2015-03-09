@@ -303,7 +303,7 @@ class Bot(object):
             msg = msg+"* *none*\n"
         else:
             for item in self.banlist['recent_bans']:
-                msg=msg+"* ["+item+"](http://redd.it/"+self.banlist['banlist'][item]")\n"
+                msg=msg+"* ["+item+"](http://redd.it/"+self.banlist['banlist'][item]+")\n"
 
         msg = msg+"\n The following domain(s) have been removed from the ban list over the last week:\n\n"
 
