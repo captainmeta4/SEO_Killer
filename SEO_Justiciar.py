@@ -121,7 +121,7 @@ class Bot(object):
                 
             if action == 'submit':
                 print('submitting to /r/SEO_Killer')
-                r.submit("SEO_Killer","overview for "+domain,text=msg)
+                r.submit("SEO_Killer","overview for "+domain,text=msg, send_replies=False)
             elif action == 'return':
                 return msg
 
