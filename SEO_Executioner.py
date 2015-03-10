@@ -184,12 +184,12 @@ class Bot(object):
                     print("unban order "+message.subject)
 
                     try:
-                        self.banlist['recent_bans'].pop(message.subject)
+                        self.banlist['recent_bans'].remove(message.subject)
                     except KeyError:
                         pass
                     
                     try:
-                        self.banlist['banlist'].pop(message.subject)
+                        del self.banlist['banlist'][message.subject]
                         self.banlist['unbanned'].append(message.subject)
                         print(message.subject+" unbanned")
                         r.edit_wiki_page(master_subreddit,'banlist',str(self.banlist),reason='unban '+message.subject+" by /u/"+message.author.name)
