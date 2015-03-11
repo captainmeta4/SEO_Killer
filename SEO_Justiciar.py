@@ -176,7 +176,7 @@ class Bot(object):
             
             
 
-            print('Deletion+repost detected in /r/'+submission.subreddit.display_name+'by /u/'+submission.author.name)
+            print('Deletion+repost detected in /r/'+submission.subreddit.display_name+' by /u/'+submission.author.name)
                 
             msg=("I've caught the following user deleting and reposting a domain:"+
                  "\n\n**User:** /u/"+submission.author.name+
@@ -227,6 +227,7 @@ class Bot(object):
 
         for subreddit in r.get_my_moderation():
             if subreddit.display_name not in self.listing:
+                print('new subreddit: /r/'+subreddit.display_name)
                 self.listing[subreddit.display_name] = OrderedDict()
             
     def run(self):
