@@ -29,7 +29,7 @@ class Bot(object):
         r.login(username, password)
         print("success")
 
-    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)    
+    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)    
     def load_caches(self):
         #load already-processed submissions cache and modlist cache
         print("loading caches")
@@ -85,7 +85,8 @@ class Bot(object):
                 raise e #triggers the @retry module
             else:
                 raise e
-        
+
+    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)    
     def get_ids_of_new(self, subreddit, quantity):
 
         #Returns submissions as an OrderedDict of submission id's and authors
@@ -106,6 +107,7 @@ class Bot(object):
 
         return self.new
 
+    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def is_deleted(self, thing_id):
 
         print ('confirming deletion on http://redd.it/'+thing_id)
@@ -119,6 +121,7 @@ class Bot(object):
             print('http://redd.it/'+thing_id+' is not deleted.')
             return False
 
+    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def find_deletions(self, subreddit):
 
         print ('checking for possible deletions in /r/'+subreddit.display_name)
@@ -149,6 +152,7 @@ class Bot(object):
                 if entry not in self.deletions[self.listing[subreddit.display_name][entry]][domain]:
                     self.deletions[self.listing[subreddit.display_name][entry]][domain].append(entry)
 
+    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def check_new_submissions(self):
 
         print('checking new submissions for reposts')
@@ -203,7 +207,7 @@ class Bot(object):
             #send modmail
             r.send_message(submission.subreddit,'Deletion+repost detected',msg)
 
-
+    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def save_caches(self):
 
         print('saving caches')
@@ -223,6 +227,7 @@ class Bot(object):
         #save the already-done cache
         r.edit_wiki_page(master_subreddit,'justiciar_alreadydone',str(self.already_done))
 
+    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def check_for_new_subreddits(self):
 
         print('checking if new subreddits are in my mod list')
@@ -231,7 +236,8 @@ class Bot(object):
             if subreddit.display_name not in self.listing:
                 print('new subreddit: /r/'+subreddit.display_name)
                 self.listing[subreddit.display_name] = OrderedDict()
-            
+                
+    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)        
     def run(self):
 
         self.login_bot()
