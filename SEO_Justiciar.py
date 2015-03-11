@@ -131,7 +131,7 @@ class Bot(object):
             if (entry not in current_posts
                 and self.is_deleted(entry)):
 
-                print('deleteion detected: http://redd.it/'+entry+" by /u/"+self.listing[subreddit.display_name][entry])
+                print('deletion detected: http://redd.it/'+entry+" by /u/"+self.listing[subreddit.display_name][entry])
 
                 #set up new author if needed
                 if self.listing[subreddit.display_name][entry] not in self.deletions:
