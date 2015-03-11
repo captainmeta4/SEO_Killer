@@ -129,7 +129,7 @@ class Bot(object):
 
             #if it's not in current_posts, then check to see if it's deleted, and if it is, remember it
             if (entry not in current_posts
-                and is_deleted(entry)):
+                and self.is_deleted(entry)):
 
                 print('deleteion detected: http://redd.it/'+entry+" by /u/"+self.listing[subreddit.display_name][entry])
 
