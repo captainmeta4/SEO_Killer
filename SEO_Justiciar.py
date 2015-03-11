@@ -69,6 +69,22 @@ class Bot(object):
                 raise e #triggers the @retry module
             else:
                 raise e
+
+        try:
+            self.already_done = eval(r.get_wiki_page(master_subreddit,"justiciar_alreadydone").content_md)
+            print("deletions cache loaded")
+        except HTTPError as e:
+            if e.response.status_code == 403:
+                print("incorrect permissions")
+                r.send_message(master_subreddit,"Incorrect permissions","I don't have access to the justiciar_alreadydone wiki page")
+            elif e.response.status_code == 404:
+                print("already-done cache not loaded. Starting with blank deletions cache")
+                self.already_done=deque([],maxlen=200)
+            elif e.response.status_code in [502, 503, 504]:
+                print("reddit's crapping out on us")
+                raise e #triggers the @retry module
+            else:
+                raise e
         
     def get_ids_of_new(self, subreddit, quantity):
 
@@ -137,7 +153,7 @@ class Bot(object):
 
         for submission in r.get_subreddit('mod').get_new(limit=100):
                 
-            #Pass if the author has no recorded deletions (and add submission to listing)
+            #Pass if the author has no recorded deletions (and add submission to listing if it isn't there already)
             if submission.author.name not in self.deletions:
                 if submission.id not in self.listing[submission.subreddit.display_name]:
                     self.listing[submission.subreddit.display_name][submission.id]=submission.author.name
@@ -145,14 +161,20 @@ class Bot(object):
 
             #pass if the author has no recorded deletions from that domain,
             #or if it's a selfpost
-            #(and add submission to listing)
+            #(and add submission to listing if it isn't there already)
             if (submission.domain not in self.deletions[submission.author.name]
                 or submission.domain == 'self.'+submission.subreddit.display_name):
                 if submission.id not in self.listing[submission.subreddit.display_name]:
                     self.listing[submission.subreddit.display_name][submission.id]=submission.author.name
                 continue
 
-            #At this point we know that the user is deleting+reposting the domain
+            #At this point we know that the user is deleting+reposting the domain,
+            #but first check if the alert has already triggered
+
+            if submission.id in self.already_done:
+                continue
+            
+            
 
             print('Deletion+repost detected in /r/'+submission.subreddit.display_name+'by /u/'+submission.author.name)
                 
@@ -167,11 +189,16 @@ class Bot(object):
 
             msg=msg+"\n\n*If this domain is spam, consider reporting it to /r/SEO_Killer*"
 
-            try:
-                submission.remove()
-            except praw.errors.ModeratorOrScopeRequired:
-                pass
-                
+            #try:
+            #    submission.remove()
+            #except praw.errors.ModeratorOrScopeRequired:
+            #    pass
+
+
+            #Add the post to an already-done list so that the modmail won't be duplicated
+            self.already_done.append(submission.id)
+
+            #send modmail
             r.send_message(submission.subreddit,'Deletion+repost detected',msg)
 
 
@@ -190,6 +217,9 @@ class Bot(object):
 
         #save the deletions cache
         r.edit_wiki_page(master_subreddit,'deletions',str(self.deletions))
+
+        #save the already-done cache
+        r.edit_wiki_page(master_subreddit,'justiciar_alreadydone',str(self.already_done))
 
     def check_for_new_subreddits(self):
 
