@@ -238,6 +238,8 @@ class Bot(object):
 
             print('running cycle')
 
+            self.check_for_new_subreddits()
+
             for subreddit in r.get_my_moderation():
                 self.find_deletions(subreddit)
 
