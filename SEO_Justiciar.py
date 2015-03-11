@@ -72,7 +72,7 @@ class Bot(object):
 
         try:
             self.already_done = eval(r.get_wiki_page(master_subreddit,"justiciar_alreadydone").content_md)
-            print("deletions cache loaded")
+            print("already done cache loaded")
         except HTTPError as e:
             if e.response.status_code == 403:
                 print("incorrect permissions")
