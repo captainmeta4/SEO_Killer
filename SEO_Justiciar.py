@@ -90,7 +90,7 @@ class Bot(object):
 
         #Returns submissions as an OrderedDict of submission id's and authors
 
-        print ('getting ids of new posts in /r/'+subreddit.display_name)
+        print ('getting ids of posts in /r/'+subreddit.display_name+'/new')
 
         self.new=OrderedDict()
             
@@ -125,6 +125,7 @@ class Bot(object):
 
         current_posts = self.get_ids_of_new(subreddit, 1000)
 
+        print ('comparing /r/'+subreddit.display_name+'listing to current')
         for entry in self.listing[subreddit.display_name]:
 
             #if it's not in current_posts, then check to see if it's deleted, and if it is, remember it
