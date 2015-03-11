@@ -138,12 +138,12 @@ class Bot(object):
         print("loading caches")
         
         try:
-            self.already_done = eval(r.get_wiki_page(master_subreddit,"justiciar_alreadydone").content_md)
+            self.already_done = eval(r.get_wiki_page(master_subreddit,"guardian_alreadydone").content_md)
             print("already-done cache loaded")
         except HTTPError as e:
             if e.response.status_code == 403:
                 print("incorrect permissions")
-                r.send_message(master_subreddit,"Incorrect permissions","I don't have access to the justiciar_alreadydone wiki page")
+                r.send_message(master_subreddit,"Incorrect permissions","I don't have access to the guardian_alreadydone wiki page")
             elif e.response.status_code == 404:
                 print("already-done cache not loaded. Starting with blank cache")
                 self.already_done = {'domains':[],'submissions':deque([],maxlen=100)}
@@ -233,7 +233,7 @@ class Bot(object):
             self.check_messages()
             self.process_submissions()
             
-            r.edit_wiki_page(master_subreddit,"justiciar_alreadydone",str(self.already_done))
+            r.edit_wiki_page(master_subreddit,"guardian_alreadydone",str(self.already_done))
             print("cache saved to reddit")
                 
     def is_valid_domain(self, domain):
