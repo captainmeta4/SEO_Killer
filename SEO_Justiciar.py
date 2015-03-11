@@ -144,8 +144,9 @@ class Bot(object):
                 if domain not in self.deletions[self.listing[subreddit.display_name][entry]]:
                     self.deletions[self.listing[subreddit.display_name][entry]][domain]=[]
                     
-                #and finally, append the deleted submission id
-                self.deletions[self.listing[subreddit.display_name][entry]][domain].append(entry)
+                #and finally, append the deleted submission id, if needed
+                if submission.id not in self.deletions[self.listing[subreddit.display_name][entry]][domain]:
+                    self.deletions[self.listing[subreddit.display_name][entry]][domain].append(entry)
 
     def check_new_submissions(self):
 
