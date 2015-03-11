@@ -138,7 +138,7 @@ class Bot(object):
                     self.deletions[self.listing[subreddit.display_name][entry]]={}
 
                 #get the deleted submission domain
-                domain = r.get_info(thing_id='t3_'+item).domain
+                domain = r.get_info(thing_id='t3_'+entry).domain
 
                 #set up new domain within that author, if needed
                 if domain not in self.deletions[self.listing[subreddit.display_name][entry]]:
