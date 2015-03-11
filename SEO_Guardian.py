@@ -9,7 +9,7 @@ import requests
 
 
 #initialize reddit
-user_agent='SEO_Killer - Justiciar Module by /u/captainmeta4 - see /r/SEO_Killer'
+user_agent='SEO_Killer - Guardian Module by /u/captainmeta4 - see /r/SEO_Killer'
 r=praw.Reddit(user_agent=user_agent)
 headers={'User-Agent': user_agent}
 
