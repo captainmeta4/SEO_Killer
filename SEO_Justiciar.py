@@ -128,7 +128,7 @@ class Bot(object):
 
         current_posts = self.get_ids_of_new(subreddit, 1000)
 
-        print ('comparing /r/'+subreddit.display_name+'listing to current')
+        print ('comparing /r/'+subreddit.display_name+' listing to current')
         for entry in self.listing[subreddit.display_name]:
 
             #if it's not in current_posts, then check to see if it's deleted, and if it is, remember it
@@ -186,7 +186,7 @@ class Bot(object):
                 
             msg=("I've caught the following user deleting and reposting a domain:"+
                  "\n\n**User:** /u/"+submission.author.name+
-                 "\n\n**Domain:** "+submission.domain+
+                 "\n\n**Domain:** ["+submission.domain+"](http://reddit.com/domain/"+submission.domain+")"+
                  "\n\n**Permalink:** ["+submission.title+"]("+submission.permalink+")"+
                  "\n\nPast [deleted] submissions by /u/"+submission.author.name+" to "+submission.domain+":\n")
 
