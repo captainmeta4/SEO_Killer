@@ -293,29 +293,36 @@ class Bot(object):
     @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def weekly_update_messages(self):
 
-        print("sending weekly update")
-        msg='The following domain(s) have been banned over the last week. Click any entry to view the corresponding /r/SEO_Killer submission.\n\n'
+        print("assembling weekly wiki update")
+        wiki='The following domain(s) have been banned over the last week. Click any entry to view the corresponding /r/SEO_Killer submission.\n\n'
 
         self.banlist['recent_bans'].sort()
         self.banlist['unbanned'].sort()
 
         if len(self.banlist['recent_bans'])==0:
-            msg = msg+"* *none*\n"
+            wiki = wiki+"* *none*\n"
         else:
             for item in self.banlist['recent_bans']:
-                msg=msg+"* ["+item+"](http://redd.it/"+self.banlist['banlist'][item]+")\n"
+                wiki=wiki+"* ["+item+"](http://redd.it/"+self.banlist['banlist'][item]+")\n"
 
-        msg = msg+"\n The following domain(s) have been removed from the ban list over the last week:\n\n"
+        wiki = wiki+"\n The following domain(s) have been removed from the ban list over the last week:\n\n"
 
         if len(self.banlist['unbanned'])==0:
-            msg = msg+"* *none*\n"
+            wiki = wiki+"* *none*\n"
         else:
             for item in self.banlist['unbanned']:
-                msg=msg+"* "+item+"\n"
+                wiki=wiki+"* "+item+"\n"
+
+        r.edit_wiki_page(master_subreddit,'recent',wiki)
 
         for subreddit in r.get_my_moderation():
             print('sending message to /r/'+subreddit.display_name)
+            msg=("The wiki page of my recent domain global bans/unbans has been updated, and can be seen at http://reddit.com/r/SEO_Killer/wiki/recent."+
+             "\n\nIf you wish to exempt your subreddit from my ban on any of these domains, [click here]"+
+             "(http://www.reddit.com/message/compose/?to=SEO_Killer&subject="+subreddit.display_name+"), fill in the domain name for the message subject, and click Send."+
+             "This will toggle whitelist status for that domain within /r/"+subreddit.display_name)
             r.send_message(subreddit,"Weekly Ban List Update Message",msg)
+            
 
         self.banlist['recent_bans']=[]
         self.banlist['unbanned']=[]
