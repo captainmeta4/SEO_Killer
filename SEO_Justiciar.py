@@ -256,9 +256,8 @@ class Bot(object):
 
             self.save_caches()
 
-            #Run cycle on XX:XX:00
-            while time.localtime().tm_sec != 0 :
-                time.sleep(1)
+            #No need to wait between cycles since the deletion detection
+            #takes forever - cycle is already 10min long
         
 
 #Master bot process
