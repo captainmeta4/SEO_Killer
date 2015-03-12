@@ -1,6 +1,10 @@
 #About the bot
 
-/u/SEO_Killer is a bot which scans its moderated subreddits for posts to sites known to engage in "black-hat SEO". It will remove such posts automatically, or alert subreddit moderators by reporting the post.
+/u/SEO_Killer is a set of three bots which work together to fight off spam:
+
+* Executioner scans moderated subreddits for posts to sites known to engage in "black-hat SEO". It will remove such posts automatically, or alert subreddit moderators by reporting the post.
+* Justiciar detects when a user deletes submissions and later submits to the same domain, and alerts the moderators. This helps fight spammers who delete their history to manipulate their submission statistics.
+* Guardian continuously crunches analytics on domains, reporting fishy ones to /r/SEO_Killer for human review and possible addition to the Executioner blacklist.
 
 Operational details can be found [here](http://reddit.com/r/SEO_Killer/wiki/guide)
 
