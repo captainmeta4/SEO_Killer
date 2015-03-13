@@ -168,6 +168,10 @@ class Bot(object):
         print('checking new submissions for reposts')
 
         for submission in r.get_subreddit('mod').get_new(limit=100):
+
+            #Pass if we're in /r/SEO_Killer
+            if submission.subreddit == master_subreddit:
+                continue
                 
             #Pass if the author has no recorded deletions (and add submission to listing if it isn't there already)
             if submission.author.name not in self.deletions:
@@ -263,6 +267,11 @@ class Bot(object):
             self.check_for_new_subreddits()
 
             for subreddit in r.get_my_moderation():
+
+                #Ignore /r/SEO_Killer
+                if subreddit == master_subreddit:
+                    continue
+                
                 self.find_deletions(subreddit)
 
             self.check_new_submissions()
