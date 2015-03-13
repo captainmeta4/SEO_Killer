@@ -20,6 +20,11 @@ password = os.environ.get('password')
 master_subreddit=r.get_subreddit('SEO_Killer')
 
 
+#Ignore list - Justiciar will neither record deletions nor alert mods for domains
+#domains on this list.
+ignore_domains=['imgur.com', 'reddit.com', 'redd.it']
+
+
 class Bot(object):
 
     @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
@@ -116,7 +121,12 @@ class Bot(object):
         #If a submission is [deleted], the .author attribute is a NoneType.
         if not isinstance(r.get_info(thing_id='t3_'+thing_id).author, praw.objects.Redditor):
             print('http://redd.it/'+thing_id+' is deleted.')
-            return True
+
+            if r.get_info(thing_id='t3_'+thing_id).domain in ignore_domains:
+                print('but domain is ignored')
+                return False
+            else:
+                return True
         else:
             print('http://redd.it/'+thing_id+' is not deleted.')
             return False
@@ -179,10 +189,13 @@ class Bot(object):
 
             if submission.id in self.already_done:
                 continue
-            
-            
 
             print('Deletion+repost detected in /r/'+submission.subreddit.display_name+' by /u/'+submission.author.name)
+
+            #And also make sure it isn't an ignored domain
+            if submission.domain in ignore_domains:
+                print('but the domain is ignored')
+                continue
                 
             msg=("I've caught the following user deleting and reposting a domain:"+
                  "\n\n**User:** /u/"+submission.author.name+
