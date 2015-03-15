@@ -137,15 +137,16 @@ class Bot(object):
 
         print ('checking for possible deletions in /r/'+subreddit.display_name)
 
+        #get spammed (removed) posts
         try:
             print ('getting ids of posts in /r/'+subreddit.display_name+'/about/spam')
 
-            self.spam=OrderedDict()
+            spam_posts=OrderedDict()
             
             for submission in r.get_subreddit('gadgets').get_spam(limit=10,params={'only':'links'}):
 
                 try:
-                    self.spam[submission.id]=submission.author.name
+                    spam_posts[submission.id]=submission.author.name
                 except AttributeError:
                     #This error happens wherever there's a [deleted] post in the /spam queue.
                     #[deleted] in /spam only happens when the owner deleted their reddit account.
