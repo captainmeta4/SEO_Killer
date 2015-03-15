@@ -143,7 +143,7 @@ class Bot(object):
 
             spam_posts=OrderedDict()
             
-            for submission in r.get_subreddit('gadgets').get_spam(limit=10,params={'only':'links'}):
+            for submission in r.get_subreddit(subreddit).get_spam(limit=10,params={'only':'links'}):
 
                 try:
                     spam_posts[submission.id]=submission.author.name
