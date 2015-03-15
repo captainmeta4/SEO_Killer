@@ -25,6 +25,7 @@ master_subreddit=r.get_subreddit('SEO_Killer')
 ignore_domains=['imgur.com', 'reddit.com', 'redd.it']
 
 
+
 class Bot(object):
 
     @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
@@ -113,6 +114,27 @@ class Bot(object):
         return self.new
 
     @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+    def get_ids_of_spam(self, subreddit, quantity):
+
+        #Returns submissions as an OrderedDict of submission id's and authors
+
+        print ('getting ids of posts in /r/'+subreddit.display_name+'/about/spam')
+
+        self.spam=OrderedDict()
+            
+        for submission in r.get_subreddit('gadgets').get_spam(limit=10,params={'only':'links'}):
+
+            try:
+                self.spam[submission.id]=submission.author.name
+            except AttributeError:
+                #This error happens wherever there's a [deleted] post in the /spam queue.
+                #[deleted] in /spam only happens when the owner deleted their reddit account.
+                #So we can safely ignore these.
+                pass
+
+        return self.spam
+
+    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def is_deleted(self, thing_id):
 
         print ('confirming deletion on http://redd.it/'+thing_id)
@@ -136,13 +158,20 @@ class Bot(object):
 
         print ('checking for possible deletions in /r/'+subreddit.display_name)
 
-        current_posts = self.get_ids_of_new(subreddit, 1000)
+        try:
+            spam_posts = self.get_ids_of_spam(subreddit, 500)
+        except praw.errors.ModeratorOrScopeRequired:
+            print('no posts permissions in /r/'+subreddit.display_name)
+            return
+
+        current_posts = self.get_ids_of_new(subreddit, 500)
 
         print ('comparing /r/'+subreddit.display_name+' listing to current')
         for entry in self.listing[subreddit.display_name]:
 
             #if it's not in current_posts, then check to see if it's deleted, and if it is, remember it
             if (entry not in current_posts
+                and entry not in spam_posts
                 and self.is_deleted(entry)):
 
                 print('deletion detected: http://redd.it/'+entry+" by /u/"+self.listing[subreddit.display_name][entry])
@@ -232,7 +261,7 @@ class Bot(object):
         #we're treating the OrderedDicts in self.listing like deques,
         #so remove the old submission entries to keep it at 1k per subreddit
         for entry in self.listing:
-            while len(self.listing[entry]) > 1000:
+            while len(self.listing[entry]) > 500:
                 self.listing[entry].popitem(last=False)
             
         #save the listings cache

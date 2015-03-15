@@ -84,6 +84,25 @@ class Bot(object):
             else:
                  raise e
 
+        try:
+            self.options = eval(r.get_wiki_page(master_subreddit,"options").content_md)
+            print("options cache loaded")
+        except HTTPError as e:
+            if e.response.status_code == 403:
+                print("incorrect permissions")
+                r.send_message(master_subreddit,"Incorrect permissions","I don't have access to the options wiki page")
+            elif e.response.status_code == 404:
+                print("options cache not loaded. Starting with blank options")
+                self.options={}
+                for subreddit in r.get_my_moderation():
+                    self.options[subreddit.display_name]={"remove_blacklisted":False}
+                r.edit_wiki_page(master_subreddit,'options',str(self.options))
+            elif e.response.status_code in [502, 503, 504]:
+                print("reddit's crapping out on us")
+                raise e #triggers the @retry module
+            else:
+                 raise e
+
     @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def update_pretty_banlist(self):
             pretty_list = "The following domains are in the /u/SEO_Killer global blacklist. Clicking one will take you to the corresponding /r/SEO_Killer report.\n"
@@ -123,20 +142,47 @@ class Bot(object):
                 if message.subreddit.display_name not in self.whitelist:
                     self.whitelist[message.subreddit.display_name]=[]
                     r.edit_wiki_page(master_subreddit,'whitelist',str(self.whitelist))
+
+                #New options entry if necessary
+                if message.subreddit.display_name not in self.options:
+                    self.options[message.subreddit.display_name]={'remove_blacklisted':False}
+                    r.edit_wiki_page(master_subreddit,'options',str(self.options))
                 
                 #send greeting
                 msg=("Hello, moderators of /r/"+message.subreddit.display_name+"!\n\n"+
-                     "I am a collection of three bots designed to help curb SEO spam on reddit. To that end, I keep and enforce a [global domain ban list](/r/SEO_Killer/wiki/ban_list)."+
-                     "\n\nIf you would like me to automatically remove submissions to domains on my ban list, give me posts permissions. "+
-                     "If you would prefer that I report submissions instead, then *don't* give me posts permissions."+
-                     "\n\nI will send you a weekly update with any domains that have been added to or removed from my global ban list. "+
-                     "If you wish to override my global ban list for any particular domain, please make use of my per-subreddit whitelist feature."+
-                     "\n\nI will also alert you when I detect a user deleting-and-reposting to a particular domain."+
-                     "\n\nFinally, I will also quietly analyze domain submission statistics, and post possible spam domains to /r/SEO_Killer for human review."+
+                     "I am a collection of three bots designed to help curb SEO spam on reddit."+
+                     "Executioner maintains a global blacklist of sites known to engage in SEO spam."+
+                     "To toggle Executioner's global ban list between Report mode and Remove mode, send me a PM with the subreddit name as the subject and `remove_blacklisted' as the subject. "+
+                     "\n\n('Posts' permissions is necessary for Remove mode. The default mode is Report.)"+
+                     "\n\nExecutioner will also send you a weekly update with any domains that have been added to or removed from my global ban list. "+
+                     "If you wish to override the global ban list for any particular domain, please make use of my per-subreddit whitelist feature."+
+                     "\n\nJusticiar will alert you when a user is detected deleting-and-reposting to a particular domain. "+
+                     "It needs 'posts' permissions (to view the /about/spam page), though; otherwise deletion detection will be too inefficient to operate on your subreddit."+
+                     "\n\nFinally, Guardian will quietly analyze domain submission statistics, and post possible spam domains to /r/SEO_Killer for human review."+
                      "\n\nFor more information, see my [subreddit](/r/SEO_Killer) and my [guide page](/r/SEO_Killer/wiki/guide). My code is on [GitHub](https://github.com/captainmeta4/SEO_Killer)"+
                      "\n\nFeedback may be directed to my creator, /u/captainmeta4. Thanks for using me!")
                 r.send_message(message.subreddit,"Hello!",msg)
                 
+                continue
+            except:
+                pass
+
+
+            #Options update
+
+            try:
+                #Toggle remove blacklist option
+                if message.body=='remove_blacklisted' and message.author in r.get_moderators(message.subject):
+                    if self.options[message.subject]['remove_blacklisted']:
+                        self.options[message.subject]['remove_blacklisted']=False
+                        r.send_message(message.author,"Options Updated","SEO Executioner now operating in Report mode")
+                        continue
+                    else:
+                        self.options[message.subject]['remove_blacklisted']=True
+                        r.send_message(message.author,"Options Updated","SEO Executioner now operating in Remove mode")
+                        continue
+                    
+                    r.edit_wiki_page(master_subreddit,'options',str(self.options))
             except:
                 pass
 
@@ -157,6 +203,8 @@ class Bot(object):
                                 msg = msg +"\n* "+entry
 
                         r.send_message(message.author,"Domain whitelist for /r/"+message.subject,msg)
+
+                        continue
 
                     #modify whitelist
                     else:
@@ -256,11 +304,18 @@ class Bot(object):
             self.already_done.append(submission.id)
 
             #remove/report offending posts
-            if any(entry in submission.domain for entry in self.banlist['banlist']) and submission.domain not in self.whitelist[submission.subreddit.display_name]:
-                try:
-                    submission.remove(spam=True)
-                    print("Removed submission to "+submission.domain+" in /r/"+submission.subreddit.display_name)
-                except praw.errors.ModeratorOrScopeRequired:
+            if (any(entry in submission.domain for entry in self.banlist['banlist'])
+                and submission.domain not in self.whitelist[submission.subreddit.display_name]):
+
+                #if options say to Remove, then try removing
+                if self.options[submission.subreddit.display_name]:
+                    try:
+                        submission.remove(spam=True)
+                        print("Removed submission to "+submission.domain+" in /r/"+submission.subreddit.display_name)
+                    except praw.errors.ModeratorOrScopeRequired:
+                        submission.report(reason='Known SEO site - http://redd.it/'+self.banlist['banlist'][submission.domain])
+                        print("Reported submission to "+submission.domain+" in /r/"+submission.subreddit.display_name+" by /u/"+submission.author.name)
+                else:
                     submission.report(reason='Known SEO site - http://redd.it/'+self.banlist['banlist'][submission.domain])
                     print("Reported submission to "+submission.domain+" in /r/"+submission.subreddit.display_name+" by /u/"+submission.author.name)
 
