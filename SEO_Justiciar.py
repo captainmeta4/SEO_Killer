@@ -116,17 +116,15 @@ class Bot(object):
     @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def is_deleted(self, thing_id):
 
-        print ('confirming deletion on http://redd.it/'+thing_id)
-
         #Checks that a submission's .author attribute is a Redditor.
         #If a submission is [deleted], the .author attribute is a NoneType.
         if not isinstance(r.get_info(thing_id='t3_'+thing_id).author, praw.objects.Redditor):
-            print('http://redd.it/'+thing_id+' is deleted.')
 
             if r.get_info(thing_id='t3_'+thing_id).domain in ignore_domains:
-                print('but domain is ignored')
+                print('http://redd.it/'+thing_id+' is deleted, but domain is ignored')
                 return False
             else:
+                print('deletion detected: http://redd.it/'+entry+" by /u/"+self.listing[subreddit.display_name][entry])
                 return True
         else:
             print('http://redd.it/'+thing_id+' is not deleted.')
@@ -169,8 +167,7 @@ class Bot(object):
                     
                     if self.is_deleted(entry):
 
-                        print('deletion detected: http://redd.it/'+entry+" by /u/"+self.listing[subreddit.display_name][entry])
-
+                        
                         #set up new author if needed
                         if self.listing[subreddit.display_name][entry] not in self.deletions:
                             self.deletions[self.listing[subreddit.display_name][entry]]={}
