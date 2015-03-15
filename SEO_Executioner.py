@@ -173,16 +173,19 @@ class Bot(object):
             try:
                 #Toggle remove blacklist option
                 if message.body=='remove_blacklisted' and message.author in r.get_moderators(message.subject):
-                    if self.options[message.subject]['remove_blacklisted']:
+                    if self.options[message.subject]['remove_blacklisted']==True:
+                        print('Switching to report mode on /r/'+message.subject)
                         self.options[message.subject]['remove_blacklisted']=False
                         r.send_message(message.author,"Options Updated","SEO Executioner now operating in Report mode")
-                        continue
+                        
                     else:
+                        print('Switching to remove mode on /r/'+message.subject)
                         self.options[message.subject]['remove_blacklisted']=True
                         r.send_message(message.author,"Options Updated","SEO Executioner now operating in Remove mode")
-                        continue
-                    
+
+                    message.mark_as_read()
                     r.edit_wiki_page(master_subreddit,'options',str(self.options))
+                    continue
             except:
                 pass
 
@@ -319,7 +322,7 @@ class Bot(object):
                     submission.report(reason='Known SEO site - http://redd.it/'+self.banlist['banlist'][submission.domain])
                     print("Reported submission to "+submission.domain+" in /r/"+submission.subreddit.display_name+" by /u/"+submission.author.name)
 
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def run(self):
         self.login_bot()
         self.load_caches()
