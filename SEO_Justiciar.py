@@ -142,7 +142,7 @@ class Bot(object):
 
             self.spam=OrderedDict()
             
-            c
+            for submission in r.get_subreddit('gadgets').get_spam(limit=10,params={'only':'links'}):
 
                 try:
                     self.spam[submission.id]=submission.author.name
