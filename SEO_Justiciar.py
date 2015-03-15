@@ -165,28 +165,32 @@ class Bot(object):
 
             #if it's not in current_posts, then check to see if it's deleted, and if it is, remember it
             if (entry not in current_posts
-                and entry not in spam_posts
-                and self.is_deleted(entry)):
+                and entry not in spam_posts):
+                
+                if self.is_deleted(entry):
 
-                print('deletion detected: http://redd.it/'+entry+" by /u/"+self.listing[subreddit.display_name][entry])
+                    print('deletion detected: http://redd.it/'+entry+" by /u/"+self.listing[subreddit.display_name][entry])
 
-                #set up new author if needed
-                if self.listing[subreddit.display_name][entry] not in self.deletions:
-                    self.deletions[self.listing[subreddit.display_name][entry]]={}
+                    #set up new author if needed
+                    if self.listing[subreddit.display_name][entry] not in self.deletions:
+                        self.deletions[self.listing[subreddit.display_name][entry]]={}
 
-                #get the deleted submission domain
-                domain = r.get_info(thing_id='t3_'+entry).domain
+                    #get the deleted submission domain
+                    domain = r.get_info(thing_id='t3_'+entry).domain
 
-                #set up new domain within that author, if needed
-                if domain not in self.deletions[self.listing[subreddit.display_name][entry]]:
-                    self.deletions[self.listing[subreddit.display_name][entry]][domain]=[]
-                    
-                #and finally, append the deleted submission id, if needed
-                if entry not in self.deletions[self.listing[subreddit.display_name][entry]][domain]:
-                    self.deletions[self.listing[subreddit.display_name][entry]][domain].append(entry)
+                    #set up new domain within that author, if needed
+                    if domain not in self.deletions[self.listing[subreddit.display_name][entry]]:
+                        self.deletions[self.listing[subreddit.display_name][entry]][domain]=[]
+                        
+                    #and finally, append the deleted submission id, if needed
+                    if entry not in self.deletions[self.listing[subreddit.display_name][entry]][domain]:
+                        self.deletions[self.listing[subreddit.display_name][entry]][domain].append(entry)
 
-                #Pop the deletion from the listing so that the post isn't continuously re-checked
-                self.listing[subreddit.display_name].pop(entry)
+                    #Pop the deletion from the listing so that the post isn't continuously re-checked
+                    self.listing[subreddit.display_name].pop(entry)
+
+                else:
+                    print('http://redd.it/'+entry+' is moderator-removed.')
 
     @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def check_new_submissions(self):
