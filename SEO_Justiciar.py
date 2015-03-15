@@ -132,7 +132,7 @@ class Bot(object):
             print('http://redd.it/'+thing_id+' is not deleted.')
             return False
 
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def find_deletions(self, subreddit):
 
         print ('checking for possible deletions in /r/'+subreddit.display_name)
@@ -144,6 +144,7 @@ class Bot(object):
             spam_posts=OrderedDict()
             
             for submission in subreddit.get_spam(limit=10,params={'only':'links'}):
+            
 
                 try:
                     spam_posts[submission.id]=submission.author.name
@@ -152,9 +153,10 @@ class Bot(object):
                     #[deleted] in /spam only happens when the owner deleted their reddit account.
                     #So we can safely ignore these.
                     pass
-        except praw.errors.ModeratorOrScopeRequired:
-            print('no posts permissions in /r/'+subreddit.display_name)
-            return
+        except HTTPError as e:
+            if e.response.status_code==403:
+                print('no posts permissions in /r/'+subreddit.display_name)
+                return
 
         current_posts = self.get_ids_of_new(subreddit, 500)
 
@@ -275,7 +277,7 @@ class Bot(object):
                 print('new subreddit: /r/'+subreddit.display_name)
                 self.listing[subreddit.display_name] = OrderedDict()
                 
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)        
+    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)        
     def run(self):
 
         self.login_bot()
