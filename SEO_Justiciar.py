@@ -143,7 +143,7 @@ class Bot(object):
 
             spam_posts=OrderedDict()
             
-            for submission in subreddit.get_spam(limit=10,params={'only':'links'}):
+            for submission in subreddit.get_spam(limit=500,params={'only':'links'}):
             
 
                 try:
