@@ -176,12 +176,12 @@ class Bot(object):
                     if self.options[message.subject]['remove_blacklisted']==True:
                         print('Switching to report mode on /r/'+message.subject)
                         self.options[message.subject]['remove_blacklisted']=False
-                        r.send_message(message.author,"Options Updated","SEO Executioner now operating in Report mode")
+                        r.send_message(message.author,"Options Updated","SEO Executioner now operating in Report mode in /r/"+message.subject)
                         
                     else:
                         print('Switching to remove mode on /r/'+message.subject)
                         self.options[message.subject]['remove_blacklisted']=True
-                        r.send_message(message.author,"Options Updated","SEO Executioner now operating in Remove mode")
+                        r.send_message(message.author,"Options Updated","SEO Executioner now operating in Remove mode in /r/"+message.subject)
 
                     message.mark_as_read()
                     r.edit_wiki_page(master_subreddit,'options',str(self.options))
