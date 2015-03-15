@@ -185,6 +185,9 @@ class Bot(object):
                 if entry not in self.deletions[self.listing[subreddit.display_name][entry]][domain]:
                     self.deletions[self.listing[subreddit.display_name][entry]][domain].append(entry)
 
+                #Pop the deletion from the listing so that the post isn't continuously re-checked
+                self.listing[subreddit.display_name].pop(entry)
+
     @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def check_new_submissions(self):
 
