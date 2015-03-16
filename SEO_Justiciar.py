@@ -22,7 +22,7 @@ master_subreddit=r.get_subreddit('SEO_Killer')
 
 #Ignore list - Justiciar will neither record deletions nor alert mods for domains
 #domains on this list.
-ignore_domains=['imgur.com', 'reddit.com', 'redd.it']
+ignore_domains=['imgur.com', 'i.imgur.com', 'reddit.com', 'redd.it']
 
 
 
@@ -191,15 +191,16 @@ class Bot(object):
                 else:
                     print('http://redd.it/'+entry+' is moderator-removed.')
 
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def check_new_submissions(self):
 
         print('checking new submissions for reposts')
 
         for submission in r.get_subreddit('mod').get_new(limit=100):
 
-            #Pass if we're in /r/SEO_Killer
-            if submission.subreddit == master_subreddit:
+            #Pass if /r/SEO_Killer, or if a new subreddit was added during the cycle
+            if (submission.subreddit == master_subreddit
+                or submission.subreddit.display_name not in self.listing):
                 continue
                 
             #Pass if the author has no recorded deletions (and add submission to listing if it isn't there already)
@@ -240,11 +241,6 @@ class Bot(object):
                 msg=msg+"\n* http://redd.it/"+entry
 
             msg=msg+"\n\n*If this domain is spam, consider reporting it to /r/SEO_Killer*"
-
-            #try:
-            #    submission.remove()
-            #except praw.errors.ModeratorOrScopeRequired:
-            #    pass
 
 
             #Add the post to an already-done list so that the modmail won't be duplicated
@@ -302,6 +298,8 @@ class Bot(object):
                     continue
                 
                 self.find_deletions(subreddit)
+
+            
 
             self.check_new_submissions()
 
