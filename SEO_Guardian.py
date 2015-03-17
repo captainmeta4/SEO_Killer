@@ -114,10 +114,24 @@ class Bot(object):
             #If there are few enough authors (3 or less) that the post would generate username mentions, do u/username instead of /u/username
             if len(authors)>3:
                 for x in range(0,len(authors)):
-                    msg=msg+"| /u/"+authors[x]+"|"+str(author_total_posts[x])+"|"+str(author_domain_posts[x])+"|"+str(int(100*author_domain_posts[x]/author_total_posts[x]))+"% |\n"
+
+                    #Prevent a possible ZeroDivisionError if reddit is derping up
+                    try:
+                        percent=str(int(100*author_domain_posts[x]/author_total_posts[x]))
+                    except ZeroDivisionError:
+                        percent='-'
+                    
+                    msg=msg+"| /u/"+authors[x]+"|"+str(author_total_posts[x])+"|"+str(author_domain_posts[x])+"|"+percent+"% |\n"
             else:
                 for x in range(0,len(authors)):
-                    msg=msg+"| u/"+authors[x]+"|"+str(author_total_posts[x])+"|"+str(author_domain_posts[x])+"|"+str(int(100*author_domain_posts[x]/author_total_posts[x]))+"% |\n"
+
+                    #Prevent a possible ZeroDivisionError if reddit is derping up
+                    try:
+                        percent=str(int(100*author_domain_posts[x]/author_total_posts[x]))
+                    except ZeroDivisionError:
+                        percent='-'
+                        
+                    msg=msg+"| u/"+authors[x]+"|"+str(author_total_posts[x])+"|"+str(author_domain_posts[x])+"|"+percent+"% |\n"
                 
             if action == 'submit':
                 print('submitting to /r/SEO_Killer')
