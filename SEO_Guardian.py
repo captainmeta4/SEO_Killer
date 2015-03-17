@@ -79,6 +79,7 @@ class Bot(object):
                     author_total_posts.pop(x)
                     author_domain_posts.pop(x)
                     x=x-1
+                    continue
                 elif e.response.status_code in [502, 503, 504]:
                     print("reddit's crapping out on us")
                     raise e #triggers the @retry module
