@@ -92,7 +92,7 @@ class Bot(object):
             else:
                 raise e
 
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)    
+    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)    
     def get_ids_of_new(self, subreddit, quantity):
 
         #Returns submissions as an OrderedDict of submission id's and authors
@@ -113,7 +113,7 @@ class Bot(object):
 
         return self.new
 
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def is_deleted(self, thing_id, subreddit):
 
         #Checks that a submission's .author attribute is a Redditor.
@@ -131,7 +131,7 @@ class Bot(object):
             print('http://redd.it/'+thing_id+' is not deleted.')
             return False
 
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def find_deletions(self, subreddit):
 
         print ('checking for possible deletions in /r/'+subreddit.display_name)
@@ -293,13 +293,12 @@ class Bot(object):
 
             for subreddit in r.get_my_moderation():
 
-                #Ignore /r/SEO_Killer
-                if subreddit == master_subreddit:
+                #Ignore /r/SEO_Killer and subreddits added during cycle
+                if (subreddit == master_subreddit
+                    or subreddit.display_name not in self.listing):
                     continue
                 
                 self.find_deletions(subreddit)
-
-            
 
             self.check_new_submissions()
 
