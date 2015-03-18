@@ -46,8 +46,8 @@ class Bot(object):
         print(str(total_posts)+" submissions by "+str(len(authors))+" unique users")
 
         #new domains don't get a free pass with easy analytics until there's several posts
-        if total_posts <10:
-            self.already_done['domains'].remove(domain)
+        if (total_posts <10
+            and action=='submit'):
             return
         
         #if there are enough unique authors, don't bother doing full analytics because the domain is probably legit

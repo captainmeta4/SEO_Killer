@@ -142,7 +142,7 @@ class Bot(object):
 
             spam_posts=OrderedDict()
             
-            for submission in subreddit.get_spam(limit=500,params={'only':'links'}):
+            for submission in subreddit.get_spam(limit=700,params={'only':'links'}):
             
 
                 try:
@@ -157,7 +157,7 @@ class Bot(object):
                 print('no posts permissions in /r/'+subreddit.display_name)
                 return
 
-        current_posts = self.get_ids_of_new(subreddit, 500)
+        current_posts = self.get_ids_of_new(subreddit, 700)
 
         print ('comparing /r/'+subreddit.display_name+' listing to current')
         for entry in self.listing[subreddit.display_name]:
@@ -257,7 +257,7 @@ class Bot(object):
         #we're treating the OrderedDicts in self.listing like deques,
         #so remove the old submission entries to keep it at 1k per subreddit
         for entry in self.listing:
-            while len(self.listing[entry]) > 500:
+            while len(self.listing[entry]) > 300:
                 self.listing[entry].popitem(last=False)
             
         #save the listings cache
