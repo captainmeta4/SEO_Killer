@@ -162,6 +162,8 @@ class Bot(object):
                      "\n\nFor more information, see my [subreddit](/r/SEO_Killer) and my [guide page](/r/SEO_Killer/wiki/guide). My code is on [GitHub](https://github.com/captainmeta4/SEO_Killer)"+
                      "\n\nFeedback may be directed to my creator, /u/captainmeta4. Thanks for using me!")
                 r.send_message(message.subreddit,"Hello!",msg)
+
+                message.mark_as_read()
                 
                 continue
             except:
