@@ -313,7 +313,7 @@ class Bot(object):
                 and submission.domain not in self.whitelist[submission.subreddit.display_name]):
 
                 #if options say to Remove, then try removing
-                if self.options[submission.subreddit.display_name]:
+                if self.options[submission.subreddit.display_name]['remove_blacklisted']:
                     try:
                         submission.remove(spam=True)
                         print("Removed submission to "+submission.domain+" in /r/"+submission.subreddit.display_name)
