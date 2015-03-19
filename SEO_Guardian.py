@@ -219,7 +219,8 @@ class Bot(object):
                 or submission.domain in self.already_done['domains']
                 or submission.id in self.already_done['submissions']
                 or submission.domain in self.banlist['banlist']
-                or submission.is_self):
+                or submission.is_self
+                or not is_valid_domain(submission.domain)):
                 continue
 
             self.already_done['domains'].append(submission.domain)
