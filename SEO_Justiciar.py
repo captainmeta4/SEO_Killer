@@ -196,7 +196,7 @@ class Bot(object):
 
         print('checking new submissions for reposts')
 
-        for submission in r.get_subreddit('mod').get_new(limit=100):
+        for submission in r.get_subreddit('mod').get_new(limit=200):
 
             #Pass if /r/SEO_Killer, or if a new subreddit was added during the cycle
             if (submission.subreddit == master_subreddit
