@@ -92,6 +92,22 @@ class Bot(object):
             else:
                 raise e
 
+    def load_whitelist(self):
+        try:
+            self.whitelist = eval(r.get_wiki_page(master_subreddit,"whitelist").content_md)
+            print("whitelist cache loaded")
+        except HTTPError as e:
+            if e.response.status_code == 403:
+                print("incorrect permissions")
+                r.send_message(master_subreddit,"Incorrect permissions","I don't have access to the whitelist wiki page")
+            elif e.response.status_code == 404:
+                print("already-done cache not loaded. Starting with blank whitelist cache")
+                self.already_done=deque([],maxlen=200)
+            elif e.response.status_code in [502, 503, 504]:
+                print("reddit's crapping out on us")
+                raise e #triggers the @retry module
+            else:
+                raise e
     #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)    
     def get_ids_of_new(self, subreddit, quantity):
 
@@ -139,8 +155,8 @@ class Bot(object):
             for submission in r.get_info(thing_id=idlist):
                 if not isinstance(submission.author, praw.objects.Redditor):
                     
-                    if (submission.domain in ignore_domains
-                        or any(item in submission.domain for item in ignore_domains)):
+                    if (submission.domain in self.whitelist[submission.subreddit.display_name]
+                        or any(item in submission.domain for item in self.whitelist[submission.subreddit.display_name])):
                         continue
                     
                     print('deletion detected: http://redd.it/'+submission.id+" by /u/"+self.listing[subreddit.display_name][submission.id])
@@ -197,7 +213,8 @@ class Bot(object):
             print('Deletion+repost detected in /r/'+submission.subreddit.display_name+' by /u/'+submission.author.name)
 
             #And also make sure it isn't an ignored domain
-            if submission.domain in ignore_domains:
+            if (submission.domain in self.whitelist[submission.subreddit.display_name]
+                or any(domain in submission.domain for domain in self.whitelist[submission.subreddit.display_name])):
                 print('but the domain is ignored')
                 continue
                 
@@ -260,6 +277,7 @@ class Bot(object):
             print('running cycle')
 
             self.check_for_new_subreddits()
+            self.load_whitelist()
 
             for subreddit in r.get_my_moderation(limit=None):
 
