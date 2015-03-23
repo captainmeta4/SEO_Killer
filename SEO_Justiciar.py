@@ -113,83 +113,49 @@ class Bot(object):
 
         return self.new
 
-    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
-    def is_deleted(self, thing_id, subreddit):
+    def break_into_100(self, ids):
 
-        #Checks that a submission's .author attribute is a Redditor.
-        #If a submission is [deleted], the .author attribute is a NoneType.
-        if not isinstance(r.get_info(thing_id='t3_'+thing_id).author, praw.objects.Redditor):
+        brokenlist=[]
+        while len(ids)>0:
+            brokenlist.append(ids[0:min(100,len(ids))])
+            del ids[0:min(100,len(ids))]
 
-            if r.get_info(thing_id='t3_'+thing_id).domain in ignore_domains:
-                print('http://redd.it/'+thing_id+' is deleted, but domain is ignored')
-                #And pop the entry to avoid duplicate checking on next run
-                self.listing[subreddit.display_name].pop(thing_id)
-                return False
-            else:
-                return True
-        else:
-            print('http://redd.it/'+thing_id+' is not deleted.')
-            return False
-
-    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+        return brokenlist
+        
     def find_deletions(self, subreddit):
 
         print ('checking for possible deletions in /r/'+subreddit.display_name)
 
-        #get spammed (removed) posts
-        try:
-            print ('getting ids of posts in /r/'+subreddit.display_name+'/about/spam')
 
-            spam_posts=OrderedDict()
-            
-            for submission in subreddit.get_spam(limit=700,params={'only':'links'}):
-            
+        #Assemble the list of ids to check
 
-                try:
-                    spam_posts[submission.id]=submission.author.name
-                except AttributeError:
-                    #This error happens wherever there's a [deleted] post in the /spam queue.
-                    #[deleted] in /spam only happens when the owner deleted their reddit account.
-                    #So we can safely ignore these.
-                    pass
-        except HTTPError as e:
-            if e.response.status_code==403:
-                print('no posts permissions in /r/'+subreddit.display_name)
-                return
-
-        current_posts = self.get_ids_of_new(subreddit, 700)
-
-        print ('comparing /r/'+subreddit.display_name+' listing to current')
+        ids=[]
         for entry in self.listing[subreddit.display_name]:
+            ids.append('t3_'+entry)
 
-            #if it's not in current_posts, then check to see if it's deleted, and if it is, remember it
-            if entry not in current_posts:
-                if entry not in spam_posts:
-                    
-                    if self.is_deleted(entry, subreddit):
+        idlists=self.break_into_100(ids)
 
-                        print('deletion detected: http://redd.it/'+entry+" by /u/"+self.listing[subreddit.display_name][entry])
-                        
-                        #set up new author if needed
-                        if self.listing[subreddit.display_name][entry] not in self.deletions:
-                            self.deletions[self.listing[subreddit.display_name][entry]]={}
+        for idlist in idlists:
+            for submission in r.get_info(thing_id=idlist):
+                if not isinstance(submission.author, praw.objects.Redditor):
+    
+                    print('deletion detected: http://redd.it/'+entry+" by /u/"+self.listing[subreddit.display_name][entry])
+                                    
+                    #set up new author if needed
+                    if self.listing[submission.subreddit.display_name][submission.id] not in self.deletions:
+                        self.deletions[self.listing[subreddit.display_name][submission.id]]={}
 
-                        #get the deleted submission domain
-                        domain = r.get_info(thing_id='t3_'+entry).domain
+                    #set up new domain within that author, if needed
+                    if submission.domain not in self.deletions[self.listing[subreddit.display_name][submission.id]]:
+                        self.deletions[self.listing[subreddit.display_name][submission.id]][submission.domain]=[]
+                                        
+                    #and finally, append the deleted submission id, if needed
+                    if entry not in self.deletions[self.listing[subreddit.display_name][submission.id]][submission.domain]:
+                        self.deletions[self.listing[subreddit.display_name][submission.id]][submission.domain].append(entry)
 
-                        #set up new domain within that author, if needed
-                        if domain not in self.deletions[self.listing[subreddit.display_name][entry]]:
-                            self.deletions[self.listing[subreddit.display_name][entry]][domain]=[]
-                            
-                        #and finally, append the deleted submission id, if needed
-                        if entry not in self.deletions[self.listing[subreddit.display_name][entry]][domain]:
-                            self.deletions[self.listing[subreddit.display_name][entry]][domain].append(entry)
+                    #Pop the deletion from the listing so that the post isn't continuously re-checked
+                    self.listing[subreddit.display_name].pop(submission.id)
 
-                        #Pop the deletion from the listing so that the post isn't continuously re-checked
-                        self.listing[subreddit.display_name].pop(entry)
-
-                else:
-                    print('http://redd.it/'+entry+' is moderator-removed.')
 
     #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def check_new_submissions(self):
@@ -269,12 +235,12 @@ class Bot(object):
         #save the already-done cache
         r.edit_wiki_page(master_subreddit,'justiciar_alreadydone',str(self.already_done))
 
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def check_for_new_subreddits(self):
 
         print('checking if new subreddits are in my mod list')
 
-        for subreddit in r.get_my_moderation():
+        for subreddit in r.get_my_moderation(limit=None):
             if subreddit.display_name not in self.listing:
                 print('new subreddit: /r/'+subreddit.display_name)
                 self.listing[subreddit.display_name] = OrderedDict()
@@ -291,7 +257,7 @@ class Bot(object):
 
             self.check_for_new_subreddits()
 
-            for subreddit in r.get_my_moderation():
+            for subreddit in r.get_my_moderation(limit=None):
 
                 #Ignore /r/SEO_Killer and subreddits added during cycle
                 if (subreddit == master_subreddit
@@ -303,9 +269,6 @@ class Bot(object):
             self.check_new_submissions()
 
             self.save_caches()
-
-            #No need to wait between cycles since the deletion detection
-            #takes forever - cycle is already 10min long
         
 
 #Master bot process
