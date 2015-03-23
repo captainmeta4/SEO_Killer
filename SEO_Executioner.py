@@ -209,6 +209,8 @@ class Bot(object):
 
                         r.send_message(message.author,"Domain whitelist for /r/"+message.subject,msg)
 
+                        message.mark_as_read()
+
                         continue
 
                     #modify whitelist
@@ -220,15 +222,18 @@ class Bot(object):
                                 print(message.body+" removed from whitelist for /r/"+message.subject)
                                 r.send_message(message.author,"Whitelist Modified",message.body+" removed from whitelist for /r/"+message.subject)
                                 r.edit_wiki_page(master_subreddit,"whitelist",str(self.whitelist),reason=message.body+" removed from whitelist for /r/"+message.subject+"by /u/"+message.author.name)
+                                message.mark_as_read()
                                 continue
                             else:
                                 self.whitelist[message.subject].append(message.body)
                                 print(message.body+" added to whitelist for /r/"+message.subject)
                                 r.send_message(message.author,"Whitelist Modified",message.body+" added to whitelist for /r/"+message.subject)
                                 r.edit_wiki_page(master_subreddit,"whitelist",str(self.whitelist),reason=message.body+" added to whitelist for /r/"+message.subject+"by /u/"+message.author.name)
+                                message.mark_as_read()
                                 continue
+
             except:
-                pass #I could respond with an error message here but I don't want to accidentally get into bot ping-pong
+                pass
 
             #Master subreddit mods controlling global ban list
             if message.author in r.get_moderators(master_subreddit):
