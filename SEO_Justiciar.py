@@ -139,7 +139,12 @@ class Bot(object):
             for submission in r.get_info(thing_id=idlist):
                 if not isinstance(submission.author, praw.objects.Redditor):
     
-                    print('deletion detected: http://redd.it/'+entry+" by /u/"+self.listing[subreddit.display_name][entry])
+                    print('deletion detected: http://redd.it/'+submission.id+" by /u/"+self.listing[subreddit.display_name][submission.id])
+
+                    if (submission.domain in ignore_domains
+                        or any(item in submission.domain for item in ignore_domains)):
+                        print('but domain is ignored')
+                        continue
                                     
                     #set up new author if needed
                     if self.listing[submission.subreddit.display_name][submission.id] not in self.deletions:
@@ -151,7 +156,7 @@ class Bot(object):
                                         
                     #and finally, append the deleted submission id, if needed
                     if entry not in self.deletions[self.listing[subreddit.display_name][submission.id]][submission.domain]:
-                        self.deletions[self.listing[subreddit.display_name][submission.id]][submission.domain].append(entry)
+                        self.deletions[self.listing[subreddit.display_name][submission.id]][submission.domain].append(submission.id)
 
                     #Pop the deletion from the listing so that the post isn't continuously re-checked
                     self.listing[subreddit.display_name].pop(submission.id)
