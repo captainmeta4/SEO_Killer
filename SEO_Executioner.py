@@ -152,7 +152,7 @@ class Bot(object):
                 msg=("Hello, moderators of /r/"+message.subreddit.display_name+"!\n\n"+
                      "I am a collection of three bots designed to help curb SEO spam on reddit."+
                      "Executioner maintains a global blacklist of sites known to engage in SEO spam."+
-                     "To toggle Executioner's global ban list between Report mode and Remove mode, send me a PM with the subreddit name as the subject and `remove_blacklisted' as the subject. "+
+                     "To toggle Executioner's global ban list between Report mode and Remove mode, send me a PM with the subreddit name as the subject and `remove_blacklisted' as the message body. "+
                      "\n\n('Posts' permissions is necessary for Remove mode. The default mode is Report.)"+
                      "\n\nExecutioner will also send you a weekly update with any domains that have been added to or removed from my global ban list. "+
                      "If you wish to override the global ban list for any particular domain, please make use of my per-subreddit whitelist feature."+
