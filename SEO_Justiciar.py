@@ -138,13 +138,12 @@ class Bot(object):
         for idlist in idlists:
             for submission in r.get_info(thing_id=idlist):
                 if not isinstance(submission.author, praw.objects.Redditor):
-    
-                    print('deletion detected: http://redd.it/'+submission.id+" by /u/"+self.listing[subreddit.display_name][submission.id])
-
+                    
                     if (submission.domain in ignore_domains
                         or any(item in submission.domain for item in ignore_domains)):
-                        print('but domain is ignored')
                         continue
+                    
+                    print('deletion detected: http://redd.it/'+submission.id+" by /u/"+self.listing[subreddit.display_name][submission.id])
                                     
                     #set up new author if needed
                     if self.listing[submission.subreddit.display_name][submission.id] not in self.deletions:
