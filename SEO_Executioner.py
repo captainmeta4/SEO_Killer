@@ -220,7 +220,7 @@ class Bot(object):
                                 message.mark_as_read()
                                 continue
                         #user whitelist
-                        else:
+                        elif is_valid_username(message.body):
                             if message.body in self.options[message.subject]['user_whitelist']:
                                 self.options[message.subject]['user_whitelist'].remove(message.body)
                                 print("/u/"+message.body+" removed from user whitelist for /r/"+message.subject)
@@ -298,9 +298,15 @@ class Bot(object):
                                        "\n\nTo change the reference, un-ban and re-ban "+message.subject)
             message.mark_as_read()
             
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def is_valid_domain(self, domain):
         if re.search("^[a-zA-Z0-9][-.a-zA-Z0-9]*\.[-.a-zA-Z0-9]*[a-zA-Z0-9]$",domain):
+            return True
+        else:
+            return False
+
+    def is_valid_username(self, username):
+        
+        if re.search("^[A-Za-z0-9_-]{3,20}$",username):
             return True
         else:
             return False
