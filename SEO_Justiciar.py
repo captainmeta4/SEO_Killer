@@ -137,7 +137,8 @@ class Bot(object):
             del ids[0:min(100,len(ids))]
 
         return brokenlist
-        
+
+    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def find_deletions(self, subreddit):
 
         print ('checking for possible deletions in /r/'+subreddit.display_name)
@@ -212,7 +213,7 @@ class Bot(object):
             #or if domain is whitelisted
             if (submission.domain not in self.deletions[submission.author.name]
                 or submission.domain == 'self.'+submission.subreddit.display_name
-                or any(domain in submission.domain for domain in options[subreddit.display_name]['domain_whitelist'])):
+                or any(domain in submission.domain for domain in self.options[subreddit.display_name]['domain_whitelist'])):
                 continue
 
             #At this point we know that the user is deleting+reposting the domain,

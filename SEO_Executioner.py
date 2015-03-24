@@ -172,7 +172,13 @@ class Bot(object):
             #Whitelist-related commands. Enclosed in try to protect against garbage input
 
             try:
-                if message.author in r.get_moderators(message.subject) and message.subject in self.options:
+                if message.author in r.get_moderators(message.subject, limit=None):
+
+                    if message.subject not in self.options:
+                        msg=("I don't have options data for that subreddit. Either I'm not a moderator there, or you mistyped the subreddit name."+
+                             '\n\nNote that you must correctly capitalize the subreddit name - for example, "SEO_Killer" would be correct, while "seo_killer" would not be.')
+                        r.send_message(message.author, "Error", msg)
+                        continue
 
                     #Read whitelist
                     if message.body == "whitelist":
@@ -234,7 +240,8 @@ class Bot(object):
                                 r.send_message(message.author,"User Whitelist Modified",message.body+" added to user whitelist for /r/"+message.subject)
                                 r.edit_wiki_page(master_subreddit,"options",str(self.options),reason=message.body+" added to domain whitelist for /r/"+message.subject+"by /u/"+message.author.name)
                                 message.mark_as_read()
-                        
+                else:
+                    r.send_message(message.author,"Error","You are not a moderator of /r/"+message.subject)
 
             except:
                 pass
