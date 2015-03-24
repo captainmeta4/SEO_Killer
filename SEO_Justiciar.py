@@ -213,7 +213,7 @@ class Bot(object):
             #or if domain is whitelisted
             if (submission.domain not in self.deletions[submission.author.name]
                 or submission.domain == 'self.'+submission.subreddit.display_name
-                or any(domain in submission.domain for domain in self.options[subreddit.display_name]['domain_whitelist'])):
+                or any(domain in submission.domain for domain in self.options[submission.subreddit.display_name]['domain_whitelist'])):
                 continue
 
             #At this point we know that the user is deleting+reposting the domain,
