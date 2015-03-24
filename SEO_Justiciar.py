@@ -232,9 +232,6 @@ class Bot(object):
             msg=msg+"\n\n*If this domain is spam, consider reporting it to /r/SEO_Killer*"
 
 
-            #Add the post to an already-done list so that the modmail won't be duplicated
-            self.already_done.append(submission.id)
-
             #send modmail
             r.send_message(submission.subreddit,'Deletion+repost detected',msg)
 
