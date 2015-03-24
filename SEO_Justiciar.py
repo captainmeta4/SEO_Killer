@@ -210,6 +210,8 @@ class Bot(object):
             if submission.id in self.already_done:
                 continue
 
+            self.already_done.append(submission.id)
+
             print('Deletion+repost detected in /r/'+submission.subreddit.display_name+' by /u/'+submission.author.name)
 
             #And also make sure it isn't an ignored domain
