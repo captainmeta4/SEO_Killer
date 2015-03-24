@@ -166,7 +166,7 @@ class Bot(object):
                         continue
                                     
                     #set up new author if needed
-                    if (self.listing[submission.subreddit.display_name][submission.id] not in self.deletions:
+                    if self.listing[submission.subreddit.display_name][submission.id] not in self.deletions:
                         self.deletions[self.listing[subreddit.display_name][submission.id]]={}
 
                     #set up new domain within that author, if needed
