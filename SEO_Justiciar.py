@@ -92,17 +92,17 @@ class Bot(object):
             else:
                 raise e
 
-    def load_whitelist(self):
+    def load_options(self):
         try:
-            self.whitelist = eval(r.get_wiki_page(master_subreddit,"whitelist").content_md)
-            print("whitelist cache loaded")
+            self.options = eval(r.get_wiki_page(master_subreddit,"options").content_md)
+            print("options cache loaded")
         except HTTPError as e:
             if e.response.status_code == 403:
                 print("incorrect permissions")
-                r.send_message(master_subreddit,"Incorrect permissions","I don't have access to the whitelist wiki page")
+                r.send_message(master_subreddit,"Incorrect permissions","I don't have access to the options wiki page")
             elif e.response.status_code == 404:
-                print("already-done cache not loaded. Starting with blank whitelist cache")
-                self.already_done=deque([],maxlen=200)
+                print("already-done cache not loaded. Starting with blank options cache")
+                self.options={}
             elif e.response.status_code in [502, 503, 504]:
                 print("reddit's crapping out on us")
                 raise e #triggers the @retry module
@@ -155,14 +155,18 @@ class Bot(object):
             for submission in r.get_info(thing_id=idlist):
                 if not isinstance(submission.author, praw.objects.Redditor):
                     
-                    if (submission.domain in self.whitelist[submission.subreddit.display_name]
-                        or any(item in submission.domain for item in self.whitelist[submission.subreddit.display_name])):
-                        continue
                     
                     print('deletion detected: http://redd.it/'+submission.id+" by /u/"+self.listing[subreddit.display_name][submission.id])
+
+                    #check whitelists
+                    if (any(domain in submission.domain for domain in self.options[submission.subreddit.display_name]['domain_whitelist'])
+                        or self.listing[submission.subreddit.display_name][submission.id] in self.options[submission.subreddit.display_name]['user_whitelist']):
+                        print('but user or domain is whitelisted')
+                        self.listing[subreddit.display_name].pop(submission.id)
+                        continue
                                     
                     #set up new author if needed
-                    if self.listing[submission.subreddit.display_name][submission.id] not in self.deletions:
+                    if (self.listing[submission.subreddit.display_name][submission.id] not in self.deletions:
                         self.deletions[self.listing[subreddit.display_name][submission.id]]={}
 
                     #set up new domain within that author, if needed
@@ -184,41 +188,41 @@ class Bot(object):
 
         for submission in r.get_subreddit('mod').get_new(limit=200):
 
-            #Pass if /r/SEO_Killer, or if a new subreddit was added during the cycle
+            #pass if alert has been triggered
+            if submission.id in self.already_done:
+                continue
+
+            #Pass if /r/SEO_Killer, or if a new subreddit that was added during the cycle
             if (submission.subreddit == master_subreddit
                 or submission.subreddit.display_name not in self.listing):
                 continue
+
+            #add submission to listing if its not already there
+            if submission.id not in self.listing[submission.subreddit.display_name]:
+                self.listing[submission.subreddit.display_name][submission.id]=submission.author.name
                 
-            #Pass if the author has no recorded deletions (and add submission to listing if it isn't there already)
-            if submission.author.name not in self.deletions:
-                if submission.id not in self.listing[submission.subreddit.display_name]:
-                    self.listing[submission.subreddit.display_name][submission.id]=submission.author.name
+            #Pass if the author has no recorded deletions
+            #or if auhor is whitelisted
+            if (submission.author.name in options[subreddit.display_name]['user_whitelist']
+                or submission.author.name not in self.deletions):
                 continue
 
             #pass if the author has no recorded deletions from that domain,
             #or if it's a selfpost
-            #(and add submission to listing if it isn't there already)
+            #or if domain is whitelisted
             if (submission.domain not in self.deletions[submission.author.name]
-                or submission.domain == 'self.'+submission.subreddit.display_name):
-                if submission.id not in self.listing[submission.subreddit.display_name]:
-                    self.listing[submission.subreddit.display_name][submission.id]=submission.author.name
+                or submission.domain == 'self.'+submission.subreddit.display_name
+                or any(domain in submission.domain for domain in options[subreddit.display_name]['domain_whitelist'])):
                 continue
 
             #At this point we know that the user is deleting+reposting the domain,
             #but first check if the alert has already triggered
 
-            if submission.id in self.already_done:
-                continue
+            
 
             self.already_done.append(submission.id)
 
             print('Deletion+repost detected in /r/'+submission.subreddit.display_name+' by /u/'+submission.author.name)
-
-            #And also make sure it isn't an ignored domain
-            if (submission.domain in self.whitelist[submission.subreddit.display_name]
-                or any(domain in submission.domain for domain in self.whitelist[submission.subreddit.display_name])):
-                print('but the domain is ignored')
-                continue
                 
             msg=("I've caught the following user deleting and reposting a domain:"+
                  "\n\n**User:** /u/"+submission.author.name+
@@ -276,7 +280,7 @@ class Bot(object):
             print('running cycle')
 
             self.check_for_new_subreddits()
-            self.load_whitelist()
+            self.load_options()
 
             for subreddit in r.get_my_moderation(limit=None):
 
