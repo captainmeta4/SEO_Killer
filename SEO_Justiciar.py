@@ -204,7 +204,7 @@ class Bot(object):
                 
             #Pass if the author has no recorded deletions
             #or if auhor is whitelisted
-            if (submission.author.name in self.options[subreddit.display_name]['user_whitelist']
+            if (submission.author.name in self.options[submission.subreddit.display_name]['user_whitelist']
                 or submission.author.name not in self.deletions):
                 continue
 
