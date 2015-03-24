@@ -240,7 +240,12 @@ class Bot(object):
                                 r.send_message(message.author,"User Whitelist Modified",message.body+" added to user whitelist for /r/"+message.subject)
                                 r.edit_wiki_page(master_subreddit,"options",str(self.options),reason=message.body+" added to domain whitelist for /r/"+message.subject+"by /u/"+message.author.name)
                                 message.mark_as_read()
+                        else:
+                            print("garbage message from /u/"+message.author.name)
+                            r.send_message(message.author,"Error","This doesn't look like a valid username or domain:\n\n"+message.body)
+                            message.mark_as_read()
                 else:
+                    print("invalid message from /u/"+message.author.name)
                     r.send_message(message.author,"Error","You are not a moderator of /r/"+message.subject)
 
             except:
