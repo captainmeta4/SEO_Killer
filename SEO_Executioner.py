@@ -185,7 +185,7 @@ class Bot(object):
                     #Read whitelist
                     if message.body == "whitelist":
                         print("whitelist query from /u/"+message.author.name+" about /r/"+message.subject)
-                        msg = "The following domains are in the /r/"+message.subject+"domain whitelist:\n"
+                        msg = "The following domains are in the /r/"+message.subject+" domain whitelist:\n"
 
                         self.options[message.subject]['domain_whitelist'].sort()
                         self.options[message.subject]['user_whitelist'].sort()
@@ -196,7 +196,7 @@ class Bot(object):
                             for entry in self.options[message.subject]['domain_whitelist']:
                                 msg = msg +"\n* "+entry
 
-                        msg=msg+"\n\nThe following users are in the /r/"+message.subject+"user whitelist:\n"
+                        msg=msg+"\n\nThe following users are in the /r/"+message.subject+" user whitelist:\n"
 
                         if len(self.options[message.subject]['user_whitelist'])==0:
                             msg=msg + "\n* *none*"
