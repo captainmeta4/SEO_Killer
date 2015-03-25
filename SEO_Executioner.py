@@ -172,12 +172,13 @@ class Bot(object):
             #Whitelist-related commands. Enclosed in try to protect against garbage input
 
             try:
-                if message.author in r.get_moderators(message.subject, limit=None):
+                if message.author in r.get_moderators(message.subject):
 
                     if message.subject not in self.options:
                         msg=("I don't have options data for that subreddit. Either I'm not a moderator there, or you mistyped the subreddit name."+
                              '\n\nNote that you must correctly capitalize the subreddit name - for example, "SEO_Killer" would be correct, while "seo_killer" would not be.')
                         r.send_message(message.author, "Error", msg)
+                        message.mark_as_read()
                         continue
 
                     #Read whitelist
