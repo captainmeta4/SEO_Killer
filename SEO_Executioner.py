@@ -171,8 +171,7 @@ class Bot(object):
 
             #Whitelist-related commands. Enclosed in try to protect against garbage input
 
-            #try:
-            if True:
+            try:
                 if message.author in r.get_moderators(message.subject):
 
                     if message.subject not in self.options:
@@ -253,8 +252,8 @@ class Bot(object):
                     print("invalid message from /u/"+message.author.name)
                     r.send_message(message.author,"Error","You are not a moderator of /r/"+message.subject)
                     message.mark_as_read()
-            #except:
-                #pass
+            except:
+                pass
 
             #Master subreddit mods controlling global ban list
             if message.author in r.get_moderators(master_subreddit):
