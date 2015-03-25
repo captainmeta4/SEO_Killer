@@ -100,7 +100,7 @@ class Bot(object):
 
             r.edit_wiki_page(master_subreddit,"ban_list",pretty_list)
 
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def check_messages(self):
 
         print("Checking messages")
@@ -171,7 +171,8 @@ class Bot(object):
 
             #Whitelist-related commands. Enclosed in try to protect against garbage input
 
-            try:
+            #try:
+            if True:
                 if message.author in r.get_moderators(message.subject):
 
                     if message.subject not in self.options:
@@ -186,10 +187,13 @@ class Bot(object):
                         print("whitelist query from /u/"+message.author.name+" about /r/"+message.subject)
                         msg = "The following domains are in the /r/"+message.subject+"domain whitelist:\n"
 
+                        self.options[message.subject]['domain_whitelist'].sort()
+                        self.options[message.subject]['user_whitelist'].sort()
+                            
                         if len(self.options[message.subject]['domain_whitelist'])==0:
                             msg=msg + "\n* *none*"
                         else:
-                            for entry in self.options[message.subject]['domain_whitelist'].sort():
+                            for entry in self.options[message.subject]['domain_whitelist']:
                                 msg = msg +"\n* "+entry
 
                         msg=msg+"\n\nThe following users are in the /r/"+message.subject+"user whitelist:\n"
@@ -197,7 +201,7 @@ class Bot(object):
                         if len(self.options[message.subject]['user_whitelist'])==0:
                             msg=msg + "\n* *none*"
                         else:
-                            for entry in self.options[message.subject]['user_whitelist'].sort():
+                            for entry in self.options[message.subject]['user_whitelist']:
                                 msg = msg +"\n* "+entry
                                
 
@@ -248,9 +252,9 @@ class Bot(object):
                 else:
                     print("invalid message from /u/"+message.author.name)
                     r.send_message(message.author,"Error","You are not a moderator of /r/"+message.subject)
-
-            except:
-                pass
+                    message.mark_as_read()
+            #except:
+                #pass
 
             #Master subreddit mods controlling global ban list
             if message.author in r.get_moderators(master_subreddit):
