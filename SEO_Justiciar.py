@@ -193,6 +193,10 @@ class Bot(object):
             if submission.id in self.already_done:
                 continue
 
+            #pass if OP deleted their reddit account
+            if not isinstance(submission.author, praw.objects.Redditor):
+                continue
+
             #Pass if /r/SEO_Killer, or if a new subreddit that was added during the cycle
             if (submission.subreddit == master_subreddit
                 or submission.subreddit.display_name not in self.listing):
