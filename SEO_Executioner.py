@@ -231,7 +231,7 @@ class Bot(object):
                                 message.mark_as_read()
                                 continue
                         #user whitelist
-                        elif is_valid_username(message.body):
+                        elif self.is_valid_username(message.body):
                             if message.body in self.options[message.subject]['user_whitelist']:
                                 self.options[message.subject]['user_whitelist'].remove(message.body)
                                 print("/u/"+message.body+" removed from user whitelist for /r/"+message.subject)
