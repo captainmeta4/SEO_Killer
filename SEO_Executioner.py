@@ -100,6 +100,20 @@ class Bot(object):
 
             r.edit_wiki_page(master_subreddit,"ban_list",pretty_list)
 
+    def toggle_option(self, subredditname, optionname, authorname):
+        if self.options[subredditname][optionname]==True:
+                print('Switching to report mode on /r/'+message.subject)
+                self.options[message.subject]['remove_blacklisted']=False
+                r.send_message(authorname,"Options Updated","Option "+optionname+"set to False for /r/"+subredditname)
+                        
+        else:
+                print('Switching to remove mode on /r/'+message.subject)
+                self.options[message.subject]['remove_blacklisted']=True
+                r.send_message(message.author,"Option "+optionname+"set to False for /r/"+subredditname)
+
+        r.edit_wiki_page(master_subreddit,'options',str(self.options))
+        
+
     #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def check_messages(self):
 
@@ -153,19 +167,16 @@ class Bot(object):
             try:
                 #Toggle remove blacklist option
                 if message.body=='remove_blacklisted' and message.author in r.get_moderators(message.subject):
-                    if self.options[message.subject]['remove_blacklisted']==True:
-                        print('Switching to report mode on /r/'+message.subject)
-                        self.options[message.subject]['remove_blacklisted']=False
-                        r.send_message(message.author,"Options Updated","SEO Executioner now operating in Report mode in /r/"+message.subject)
-                        
-                    else:
-                        print('Switching to remove mode on /r/'+message.subject)
-                        self.options[message.subject]['remove_blacklisted']=True
-                        r.send_message(message.author,"Options Updated","SEO Executioner now operating in Remove mode in /r/"+message.subject)
-
+                    self.toggle_option(message.subject, 'remove_blacklisted', message.author.name)
                     message.mark_as_read()
-                    r.edit_wiki_page(master_subreddit,'options',str(self.options))
                     continue
+        
+                #Toggle justiciar ignore option
+                elif message.body=='justiciar_ignore' and message.author in r.get_moderators(message.subject):
+                    self.toggle_option(message.subject, 'justiciar_ignore', message.author.name)
+                    message.mark_as_read()
+                    continue
+
             except:
                 pass
 

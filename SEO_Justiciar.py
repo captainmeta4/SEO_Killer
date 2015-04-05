@@ -198,8 +198,10 @@ class Bot(object):
                 continue
 
             #Pass if /r/SEO_Killer, or if a new subreddit that was added during the cycle
+            #or if subreddit is ignored
             if (submission.subreddit == master_subreddit
-                or submission.subreddit.display_name not in self.listing):
+                or submission.subreddit.display_name not in self.listing
+                or options[subreddit.display_name]['justiciar_ignore']):
                 continue
 
             #add submission to listing if its not already there
@@ -290,8 +292,10 @@ class Bot(object):
             for subreddit in r.get_my_moderation(limit=None):
 
                 #Ignore /r/SEO_Killer and subreddits added during cycle
+                #also ignore subreddits ignored by justiciar
                 if (subreddit == master_subreddit
-                    or subreddit.display_name not in self.listing):
+                    or subreddit.display_name not in self.listing
+                    or options[subreddit.display_name]['justiciar_ignore']):
                     continue
                 
                 self.find_deletions(subreddit)
