@@ -109,7 +109,7 @@ class Bot(object):
         else:
                 print('Switching to remove mode on /r/'+message.subject)
                 self.options[message.subject]['remove_blacklisted']=True
-                r.send_message(message.author,"Option "+optionname+"set to False for /r/"+subredditname)
+                r.send_message(message.author,"Option "+optionname+"set to True for /r/"+subredditname)
 
         r.edit_wiki_page(master_subreddit,'options',str(self.options))
         
