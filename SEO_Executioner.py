@@ -137,7 +137,7 @@ class Bot(object):
 
                 #make a new options set if necessary
                 if message.subreddit.display_name not in self.options:
-                    self.options[message.subreddit.display_name]={"remove_blacklisted":False, 'domain_whitelist':[], 'user_whitelist':[]}
+                    self.options[message.subreddit.display_name]={"remove_blacklisted":False, 'domain_whitelist':[], 'user_whitelist':[], 'justiciar_ignore': False}
                     r.edit_wiki_page(master_subreddit,'options',str(self.options))
                 
                 #send greeting
