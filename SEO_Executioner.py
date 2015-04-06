@@ -395,7 +395,7 @@ class Bot(object):
             while time.localtime().tm_sec != 0 :
                 time.sleep(1)
 
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def weekly_update_messages(self):
 
         print("assembling weekly wiki update")
@@ -420,7 +420,7 @@ class Bot(object):
 
         r.edit_wiki_page(master_subreddit,'recent',wiki)
 
-        for subreddit in r.get_my_moderation():
+        for subreddit in r.get_my_moderation(limit=None):
             print('sending message to /r/'+subreddit.display_name)
             msg=("The wiki page of my recent domain global bans/unbans has been updated, and can be seen at http://reddit.com/r/SEO_Killer/wiki/recent."+
              "\n\nIf you wish to exempt your subreddit from my ban on any of these domains, [click here]"+
