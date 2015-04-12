@@ -350,8 +350,13 @@ class Bot(object):
 
             self.already_done.append(submission.id)
 
+            #continue on ignored subreddit
+            if submission.subreddit.display_name == master_subreddit:
+                continue
+
             #continue on ignored authors
-            if submission.author.name in self.options[submission.subreddit.display_name]['user_whitelist']:
+            if (submission.author.name in self.options[submission.subreddit.display_name]['user_whitelist']
+                or submission.author.name == "SEO_Killer"):
                 continue
 
             #continue on ignored domains
