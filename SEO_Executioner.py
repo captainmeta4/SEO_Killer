@@ -366,28 +366,38 @@ class Bot(object):
             #link posts - act on banned domains
             if (not submission.is_self
                 and any(entry in submission.domain for entry in self.banlist['banlist'])):
-                self.remove_post(submission)
+                
+                #if options say to Remove, then try removing
+                if self.options[submission.subreddit.display_name]['remove_blacklisted']:
+                    try:
+                        submission.remove(spam=True)
+                        print("Removed submission to "+submission.domain+" in /r/"+submission.subreddit.display_name)
+                    except praw.errors.ModeratorOrScopeRequired:
+                        submission.report(reason='Known SEO site - http://redd.it/'+self.banlist['banlist'][submission.domain])
+                        print("Reported submission to "+submission.domain+" in /r/"+submission.subreddit.display_name+" by /u/"+submission.author.name)
+                else:
+                    submission.report(reason='Known SEO site - http://redd.it/'+self.banlist['banlist'][submission.domain])
+                    print("Reported submission to "+submission.domain+" in /r/"+submission.subreddit.display_name+" by /u/"+submission.author.name)
                 continue
 
             #self posts - act on banned domains
             if (submission.is_self
+
+                    #if, within the self text,      there is an item           which is in the ban list             but not in the whitelist
                 and any(entry in submission.selftext for entry in [domain for domain in self.banlist['banlist'] if domain not in self.options[submission.subreddit.display_name]['domain_whitelist']] )):
-                self.remove_post(submission)
-                continue
 
-
-    def remove_post(self, submission):
-            #if options say to Remove, then try removing
-            if self.options[submission.subreddit.display_name]['remove_blacklisted']:
-                try:
-                    submission.remove(spam=True)
-                    print("Removed submission to "+submission.domain+" in /r/"+submission.subreddit.display_name)
-                except praw.errors.ModeratorOrScopeRequired:
-                    submission.report(reason='Known SEO site - http://redd.it/'+self.banlist['banlist'][submission.domain])
+                #if options say to Remove, then try removing
+                if self.options[submission.subreddit.display_name]['remove_blacklisted']:
+                    try:
+                        submission.remove(spam=True)
+                        print("Removed submission to "+submission.domain+" in /r/"+submission.subreddit.display_name)
+                    except praw.errors.ModeratorOrScopeRequired:
+                        submission.report(reason='Text contains link to known SEO site')
+                        print("Reported submission to "+submission.domain+" in /r/"+submission.subreddit.display_name+" by /u/"+submission.author.name)
+                else:
+                    submission.report(reason='Text contains link to known SEO site')
                     print("Reported submission to "+submission.domain+" in /r/"+submission.subreddit.display_name+" by /u/"+submission.author.name)
-            else:
-                submission.report(reason='Known SEO site - http://redd.it/'+self.banlist['banlist'][submission.domain])
-                print("Reported submission to "+submission.domain+" in /r/"+submission.subreddit.display_name+" by /u/"+submission.author.name)
+                continue
 
     #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def run(self):
