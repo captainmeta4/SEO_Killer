@@ -338,7 +338,7 @@ class Bot(object):
         else:
             return False
         
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def process_submissions(self):
         print('processing submissions')
 
@@ -371,7 +371,7 @@ class Bot(object):
 
             #self posts - act on banned domains
             if (submission.is_self
-                and [domain for domain in self.banlist['banlist'] if domain not in self.options[submission.subreddit.display_name]['domain_whitelist']]):
+                and any(entry in submission.selftext for entry in [domain for domain in self.banlist['banlist'] if domain not in self.options[submission.subreddit.display_name]['domain_whitelist']] )):
                 self.remove_post(submission)
                 continue
 
