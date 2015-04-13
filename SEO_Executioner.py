@@ -351,7 +351,7 @@ class Bot(object):
             self.already_done.append(submission.id)
 
             #continue on ignored subreddit
-            if submission.subreddit.display_name == master_subreddit:
+            if submission.subreddit == master_subreddit:
                 continue
 
             #continue on ignored authors
