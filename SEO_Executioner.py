@@ -176,9 +176,7 @@ class Bot(object):
                     self.toggle_option(message.subject, 'justiciar_ignore', message.author.name)
                     message.mark_as_read()
                     continue
-
-                r.edit_wiki_page('seo_killer','options',str(self.options))
-
+                
             except:
                 pass
 
