@@ -102,14 +102,14 @@ class Bot(object):
 
     def toggle_option(self, subredditname, optionname, authorname):
         if self.options[subredditname][optionname]==True:
-                print('Switching to report mode on /r/'+message.subject)
-                self.options[message.subject]['remove_blacklisted']=False
+                print(optionname+ 'set to False for /r/'+subredditname)
+                self.options[subredditname]['remove_blacklisted']=False
                 r.send_message(authorname,"Options Updated","Option "+optionname+"set to False for /r/"+subredditname)
                         
         else:
-                print('Switching to remove mode on /r/'+message.subject)
-                self.options[message.subject]['remove_blacklisted']=True
-                r.send_message(message.author,"Option "+optionname+"set to True for /r/"+subredditname)
+                print(optionname+ 'set to True for /r/'+subredditname)
+                self.options[subredditname]['remove_blacklisted']=True
+                r.send_message(authorname,"Options Updated","Option "+optionname+"set to True for /r/"+subredditname)
 
         r.edit_wiki_page(master_subreddit,'options',str(self.options))
         
@@ -176,6 +176,8 @@ class Bot(object):
                     self.toggle_option(message.subject, 'justiciar_ignore', message.author.name)
                     message.mark_as_read()
                     continue
+
+                r.edit_wiki_page('seo_killer','options',str(self.options))
 
             except:
                 pass
