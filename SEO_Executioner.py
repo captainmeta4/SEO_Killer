@@ -102,14 +102,14 @@ class Bot(object):
 
     def toggle_option(self, subredditname, optionname, authorname):
         if self.options[subredditname][optionname]==True:
-                print(optionname+ 'set to False for /r/'+subredditname)
+                print(optionname+ ' set to False for /r/'+subredditname)
                 self.options[subredditname][optionname]=False
-                r.send_message(authorname,"Options Updated","Option "+optionname+"set to False for /r/"+subredditname)
+                r.send_message(authorname,"Options Updated","Option "+optionname+" set to False for /r/"+subredditname)
                         
         else:
-                print(optionname+ 'set to True for /r/'+subredditname)
+                print(optionname+ ' set to True for /r/'+subredditname)
                 self.options[subredditname][optionname]=True
-                r.send_message(authorname,"Options Updated","Option "+optionname+"set to True for /r/"+subredditname)
+                r.send_message(authorname,"Options Updated","Option "+optionname+" set to True for /r/"+subredditname)
 
         r.edit_wiki_page(master_subreddit,'options',str(self.options))
         

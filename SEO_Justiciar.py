@@ -201,7 +201,7 @@ class Bot(object):
             #or if subreddit is ignored
             if (submission.subreddit == master_subreddit
                 or submission.subreddit.display_name not in self.listing
-                or self.options[subreddit.display_name]['justiciar_ignore']):
+                or self.options[submission.subreddit.display_name]['justiciar_ignore']):
                 continue
 
             #add submission to listing if its not already there
