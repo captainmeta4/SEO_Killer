@@ -41,3 +41,11 @@ Yes. The global blacklist is public information. It can be seen [here](http://re
 ##How do I submit a SEO-spammy domain to get it blacklisted?
 
 Submit a post to http://reddit.com/r/SEO_Killer
+
+#Licensing
+
+I'm not a lawyer so let's keep this simple.
+
+You're free to take this project, fork it, do whatever the hell you want. Just please credit me appropriately.
+
+If reddit, inc. wishes to implement anything here, they may do so on the condition that I get an "Open Sorcerer" trophy on my user profile (/u/captainmeta4)
