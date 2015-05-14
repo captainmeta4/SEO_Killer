@@ -14,15 +14,11 @@ Technically, yes, but it won't. The bot's global blacklist is controlled by the 
 
 ##There's a domain on the bot's blacklist that my subreddit enjoys.
 
-There is a per-subreddit whitelist feature currently in development.
+Please make use of the per-subreddit whitelist feature.
 
 ##How do I get the bot running on my subreddit?
 
-Invite /u/SEO_Killer as moderator.
-
-If you want the bot to remove banned sites, give it "posts" permissions.
-
-If you would rather the bot report banned sites, then don't give it "posts" permissions.
+Invite /u/SEO_Killer as moderator, with "posts" permissions.
 
 ##I'm not comfortable giving the /r/SEO_Killer moderators the ability to blacklist domains in my subreddit.
 
