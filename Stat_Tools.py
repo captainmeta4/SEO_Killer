@@ -72,6 +72,8 @@ def analyze_domain(domain):
 
         r.send_message(username,"Analyze "+domain, msg)
 
+        print("message sent - check your inbox")
+
 def compare_domains(domain1, domain2):
 
         domain1_posts=0
@@ -103,7 +105,13 @@ def compare_domains(domain1, domain2):
         #get authors in common to both domains
         common_authors = list(set(authors1).intersection(authors2))
 
-        print(domain1+" has "+str(len(authors1))+" unique authors")
-        print(domain2+" has "+str(len(authors2))+" unique authors")
-        print("they have the following "+str(len(common_authors))+" in common:")
-        print(common_authors)
+        msg=(domain1+" has "+str(len(authors1))+" unique authors\n\n"+
+             domain2+" has "+str(len(authors2))+" unique authors\n\n"+
+             "They have the following "+str(len(common_authors))+" in common:")
+        
+        for entry in common_authors:
+            msg=msg+"\n\n* /u/"+entry
+
+        r.send_message(username,"Comparison of "+domain1+" and "+domain2,msg)
+
+        print("message sent - check your inbox")
