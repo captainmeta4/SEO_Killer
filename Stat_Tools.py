@@ -3,7 +3,7 @@ import re
 import time
 import requests
 
-agentstring="PRAW shell setup script version 1.0 by /u/captainmeta4"
+agentstring="Domain analytics script tools version 1.0 by /u/captainmeta4"
 r = praw.Reddit(user_agent=agentstring)
 headers = {'User-Agent': agentstring}
 
