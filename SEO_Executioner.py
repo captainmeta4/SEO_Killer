@@ -229,14 +229,14 @@ class Bot(object):
                             if message.body in self.options[message.subject]['domain_whitelist']:
                                 self.options[message.subject]['domain_whitelist'].remove(message.body)
                                 print(message.body+" removed from domain whitelist for /r/"+message.subject)
-                                r.send_message(message.author,"Domain Whitelist Modified",message.body+" removed from domain whitelist for /r/"+message.subject)
+                                message.reply(message.body+" removed from domain whitelist for /r/"+message.subject)
                                 r.edit_wiki_page(master_subreddit,"options",str(self.options),reason=message.body+" removed from domain whitelist for /r/"+message.subject+"by /u/"+message.author.name)
                                 message.mark_as_read()
                                 continue
                             else:
                                 self.options[message.subject]['domain_whitelist'].append(message.body)
                                 print(message.body+" added to domain whitelist for /r/"+message.subject)
-                                r.send_message(message.author,"Domain Whitelist Modified",message.body+" added to domain whitelist for /r/"+message.subject)
+                                message.reply(message.author,"Domain Whitelist Modified",message.body+" added to domain whitelist for /r/"+message.subject)
                                 r.edit_wiki_page(master_subreddit,"options",str(self.options),reason=message.body+" added to domain whitelist for /r/"+message.subject+"by /u/"+message.author.name)
                                 message.mark_as_read()
                                 continue
@@ -245,14 +245,14 @@ class Bot(object):
                             if message.body in self.options[message.subject]['user_whitelist']:
                                 self.options[message.subject]['user_whitelist'].remove(message.body)
                                 print("/u/"+message.body+" removed from user whitelist for /r/"+message.subject)
-                                r.send_message(message.author,"User Whitelist Modified",message.body+" removed from user whitelist for /r/"+message.subject)
+                                message.reply(message.body+" removed from user whitelist for /r/"+message.subject)
                                 r.edit_wiki_page(master_subreddit,"options",str(self.options),reason=message.body+" removed from user whitelist for /r/"+message.subject+"by /u/"+message.author.name)
                                 message.mark_as_read()
                                 continue
                             else:
                                 self.options[message.subject]['user_whitelist'].append(message.body)
                                 print(message.body+" added to user whitelist for /r/"+message.subject)
-                                r.send_message(message.author,"User Whitelist Modified",message.body+" added to user whitelist for /r/"+message.subject)
+                                message.reply(message.body+" added to user whitelist for /r/"+message.subject)
                                 r.edit_wiki_page(master_subreddit,"options",str(self.options),reason=message.body+" added to domain whitelist for /r/"+message.subject+"by /u/"+message.author.name)
                                 message.mark_as_read()
                         else:
