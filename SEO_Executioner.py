@@ -1,7 +1,7 @@
 import praw
 import time
 import os
-from retrying import retry
+#from retrying import retry
 from collections import deque
 import re
 from requests.exceptions import HTTPError
@@ -21,14 +21,14 @@ master_subreddit=r.get_subreddit('SEO_Killer')
 
 class Bot(object):
 
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def login_bot(self):
 
         print("logging in...")
         r.login(username, password)
         print("success")
 
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)    
+    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)    
     def load_caches(self):
         #load already-processed submissions cache and modlist cache
         print("loading caches")
@@ -86,7 +86,7 @@ class Bot(object):
             else:
                  raise e
 
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def update_pretty_banlist(self):
             pretty_list = "The following domains are in the /u/SEO_Killer global blacklist. Clicking one will take you to the corresponding /r/SEO_Killer report.\n"
             raw_list = []
@@ -257,11 +257,11 @@ class Bot(object):
                                 message.mark_as_read()
                         else:
                             print("garbage message from /u/"+message.author.name)
-                            r.send_message(message.author,"Error","This doesn't look like a valid username or domain:\n\n"+message.body)
+                            message.reply("This doesn't look like a valid username or domain:\n\n"+message.body)
                             message.mark_as_read()
                 else:
                     print("invalid message from /u/"+message.author.name)
-                    r.send_message(message.author,"Error","You are not a moderator of /r/"+message.subject)
+                    message.reply("Error","You are not a moderator of /r/"+message.subject)
                     message.mark_as_read()
             except:
                 pass
@@ -276,7 +276,7 @@ class Bot(object):
 
                     try:
                         self.banlist['recent_bans'].remove(message.subject)
-                    except KeyError:
+                    except ValueError:
                         pass
                     
                     try:
@@ -285,8 +285,9 @@ class Bot(object):
                         print(message.subject+" unbanned")
                         r.edit_wiki_page(master_subreddit,'banlist',str(self.banlist),reason='unban '+message.subject+" by /u/"+message.author.name)
                         self.update_pretty_banlist()
-                    except KeyError:
-                        r.send_message(message.author,"Error",message.subject+" was not banned.")
+                        message.reply(message.subject+" was successfully unbanned.")
+                    except ValueError:
+                        message.reply(message.subject+" was not banned.")
                         print(message.subject+" was not banned")
                         
 
@@ -344,6 +345,9 @@ class Bot(object):
 
         for submission in r.get_subreddit('mod').get_new(limit=100):
 
+            #line to assist debug
+            self.submission_id = submission.id
+
             #avoid duplicate work
             if submission.id in self.already_done:
                 continue
@@ -354,10 +358,13 @@ class Bot(object):
             if submission.subreddit == master_subreddit:
                 continue
 
-            #continue on ignored authors
-            if (submission.author.name in self.options[submission.subreddit.display_name]['user_whitelist']
-                or submission.author.name == "SEO_Killer"):
-                continue
+            #continue on ignored authors, if user account is not deleted
+            try:
+                if (submission.author.name in self.options[submission.subreddit.display_name]['user_whitelist']
+                    or submission.author.name == "SEO_Killer"):
+                    continue
+            except AttributeError:
+                pass
 
             #continue on ignored domains
             if submission.domain in self.options[submission.subreddit.display_name]['domain_whitelist']:
