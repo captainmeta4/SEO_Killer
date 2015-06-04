@@ -345,9 +345,6 @@ class Bot(object):
 
         for submission in r.get_subreddit('mod').get_new(limit=100):
 
-            #line to assist debug
-            self.submission_id = submission.id
-
             #avoid duplicate work
             if submission.id in self.already_done:
                 continue
