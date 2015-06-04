@@ -283,7 +283,7 @@ class Bot(object):
 
                     try:
                         self.banlist['recent_bans'].remove(message.subject)
-                    except KeyError:
+                    except ValueError:
                         pass
                     
                     try:
@@ -292,7 +292,7 @@ class Bot(object):
                         print(message.subject+" unbanned")
                         r.edit_wiki_page(master_subreddit,'banlist',str(self.banlist),reason='unban '+message.subject+" by /u/"+message.author.name)
                         self.update_pretty_banlist()
-                    except KeyError:
+                    except ValueError:
                         r.send_message(message.author,"Error",message.subject+" was not banned.")
                         print(message.subject+" was not banned")
                         
