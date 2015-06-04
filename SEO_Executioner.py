@@ -17,6 +17,8 @@ headers={'User-Agent': user_agent}
 username = 'SEO_Killer'
 password = os.environ.get('password')
 
+owner_name = 'captainmeta4'
+
 master_subreddit=r.get_subreddit('SEO_Killer')
 
 class Bot(object):
@@ -467,6 +469,7 @@ class Bot(object):
                 msg="I have de-modded myself from /r/"+subreddit.display_name+" as I do not moderate over-18 subreddits."
                 subject = "Stepping down"
                 subreddit.remove_moderator(r.get_redditor(username))
+                r.send_message(owner_name,'Over-18 subreddit','Stepped myself down from /r/'+subreddit.display_name+' as it is now over-18')
             else:
             #Assemble and send the message
                 msg=("The wiki page of my recent domain global bans/unbans has been updated, and can be seen at http://reddit.com/r/SEO_Killer/wiki/recent."+
