@@ -132,6 +132,13 @@ class Bot(object):
 
             #Just assume all messages are a mod invite, and fetch modlist if invite accepted
             try:
+
+                #Don't accept mod invites for over-18 subreddits
+                if message.subreddit.over18:
+                    message.mark_as_read()
+                    message.reply("Sorry, I don't moderate over-18 subreddits.")
+                    continue
+                
                 r.accept_moderator_invite(message.subreddit.display_name)
                 print("Accepted moderator invite for /r/"+message.subreddit.display_name)
 
@@ -457,12 +464,22 @@ class Bot(object):
         r.edit_wiki_page(master_subreddit,'recent',wiki)
 
         for subreddit in r.get_my_moderation(limit=None):
-            print('sending message to /r/'+subreddit.display_name)
-            msg=("The wiki page of my recent domain global bans/unbans has been updated, and can be seen at http://reddit.com/r/SEO_Killer/wiki/recent."+
-             "\n\nIf you wish to exempt your subreddit from my ban on any of these domains, [click here]"+
-             "(http://www.reddit.com/message/compose/?to=SEO_Killer&subject="+subreddit.display_name+"), fill in the domain name for the message subject, and click Send."+
-             "This will toggle whitelist status for that domain within /r/"+subreddit.display_name)
-            r.send_message(subreddit,"Weekly Ban List Update Message",msg)
+            print("sending message to /r/"+subreddit.display_name)
+
+            #Make sure that the subreddit has not switched to over-18
+            if subreddit.over18:
+                msg="I have de-modded myself from /r/"+subreddit.display_name+" as I do not moderate over-18 subreddits."
+                subject = "Stepping down"
+            else:
+            #Assemble and send the message
+                msg=("The wiki page of my recent domain global bans/unbans has been updated, and can be seen at http://reddit.com/r/SEO_Killer/wiki/recent."+
+                     "\n\nIf you wish to exempt your subreddit from my ban on any of these domains, [click here]"+
+                     "(http://www.reddit.com/message/compose/?to=SEO_Killer&subject="+subreddit.display_name+"), fill in the domain name for the message subject, and click Send."+
+                     "This will toggle whitelist status for that domain within /r/"+subreddit.display_name)
+                subject="Weekly Ban List Update Message"
+
+
+            r.send_message(subreddit,subject,msg)
             
 
         self.banlist['recent_bans']=[]
