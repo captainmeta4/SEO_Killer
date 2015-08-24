@@ -266,15 +266,153 @@ class Bot(object):
         #save the already-done cache
         r.edit_wiki_page(master_subreddit,'justiciar_alreadydone',str(self.already_done))
 
-    #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
-    def check_for_new_subreddits(self):
+    def check_messages(self):
 
-        print('checking if new subreddits are in my mod list')
+        print("Checking messages")
 
-        for subreddit in r.get_my_moderation(limit=None):
-            if subreddit.display_name not in self.listing:
-                print('new subreddit: /r/'+subreddit.display_name)
-                self.listing[subreddit.display_name] = OrderedDict()
+        for message in r.get_unread(limit=None):
+
+            #Ignore post replies
+            if message.subject == "comment reply":
+                message.mark_as_read()
+                continue
+
+            #Just assume all messages are a mod invite, and fetch modlist if invite accepted
+            try:
+
+                #Don't accept mod invites for over-18 subreddits
+                if message.subreddit.over18:
+                    message.mark_as_read()
+                    message.reply("Sorry, I don't moderate over-18 subreddits.")
+                    continue
+                
+                r.accept_moderator_invite(message.subreddit.display_name)
+                print("Accepted moderator invite for /r/"+message.subreddit.display_name)
+
+                #make a new options set if necessary
+                if message.subreddit.display_name not in self.options:
+                    self.options[message.subreddit.display_name]={"remove_blacklisted":False, 'domain_whitelist':[], 'user_whitelist':[], 'justiciar_ignore': False}
+                    r.edit_wiki_page(master_subreddit,'options',str(self.options))
+                
+                #send greeting
+                msg=("Hello, moderators of /r/"+message.subreddit.display_name+"!\n\n"+
+                     "I am a collection of three bots designed to help curb SEO spam on reddit."+
+                     "Executioner maintains a global blacklist of sites known to engage in SEO spam."+
+                     "To toggle Executioner's global ban list between Report mode and Remove mode, send me a PM with the subreddit name as the subject and `remove_blacklisted' as the message body. "+
+                     "\n\n('Posts' permissions is necessary for Remove mode. The default mode is Report.)"+
+                     "\n\nExecutioner will also send you a weekly update with any domains that have been added to or removed from my global ban list. "+
+                     "If you wish to override the global ban list for any particular domain, please make use of my per-subreddit whitelist feature."+
+                     "\n\nJusticiar will alert you when a user is detected deleting-and-reposting to a particular domain. "+
+                     "It needs 'posts' permissions (to view the /about/spam page), though; otherwise deletion detection will be too inefficient to operate on your subreddit."+
+                     "\n\nFinally, Guardian will quietly analyze domain submission statistics, and post possible spam domains to /r/SEO_Killer for human review."+
+                     "\n\nFor more information, see my [subreddit](/r/SEO_Killer) and my [guide page](/r/SEO_Killer/wiki/guide). My code is on [GitHub](https://github.com/captainmeta4/SEO_Killer)"+
+                     "\n\nFeedback may be directed to my creator, /u/captainmeta4. Thanks for using me!")
+                r.send_message(message.subreddit,"Hello!",msg)
+
+                message.mark_as_read()
+                
+                continue
+            except:
+                pass
+
+            #Whitelist-related commands. Enclosed in try to protect against garbage input
+
+            try:
+                if message.author in r.get_moderators(message.subject):
+
+                    if message.subject not in self.options:
+                        msg=("I don't have options data for that subreddit. Either I'm not a moderator there, or you mistyped the subreddit name."+
+                             '\n\nNote that you must correctly capitalize the subreddit name - for example, "SEO_Killer" would be correct, while "seo_killer" would not be.')
+                        r.send_message(message.author, "Error", msg)
+                        message.mark_as_read()
+                        continue
+
+                    #Read whitelist
+                    if message.body == "whitelist":
+                        print("whitelist query from /u/"+message.author.name+" about /r/"+message.subject)
+                        msg = "The following domains are in the /r/"+message.subject+" domain whitelist:\n"
+
+                        self.options[message.subject]['domain_whitelist'].sort()
+                        self.options[message.subject]['user_whitelist'].sort()
+                            
+                        if len(self.options[message.subject]['domain_whitelist'])==0:
+                            msg=msg + "\n* *none*"
+                        else:
+                            for entry in self.options[message.subject]['domain_whitelist']:
+                                msg = msg +"\n* "+entry
+
+                        msg=msg+"\n\nThe following users are in the /r/"+message.subject+" user whitelist:\n"
+
+                        if len(self.options[message.subject]['user_whitelist'])==0:
+                            msg=msg + "\n* *none*"
+                        else:
+                            for entry in self.options[message.subject]['user_whitelist']:
+                                msg = msg +"\n* "+entry
+                               
+
+                        r.send_message(message.author,"Whitelist for /r/"+message.subject,msg)
+
+                        message.mark_as_read()
+
+                        continue
+
+                    #modify whitelist
+                    else:
+                        #domain whitelist
+                        if self.is_valid_domain(message.body):
+
+                            if message.body in self.options[message.subject]['domain_whitelist']:
+                                self.options[message.subject]['domain_whitelist'].remove(message.body)
+                                print(message.body+" removed from domain whitelist for /r/"+message.subject)
+                                message.reply(message.body+" removed from domain whitelist for /r/"+message.subject)
+                                r.edit_wiki_page(master_subreddit,"options",str(self.options),reason=message.body+" removed from domain whitelist for /r/"+message.subject+"by /u/"+message.author.name)
+                                message.mark_as_read()
+                                continue
+                            else:
+                                self.options[message.subject]['domain_whitelist'].append(message.body)
+                                print(message.body+" added to domain whitelist for /r/"+message.subject)
+                                message.reply(message.author,"Domain Whitelist Modified",message.body+" added to domain whitelist for /r/"+message.subject)
+                                r.edit_wiki_page(master_subreddit,"options",str(self.options),reason=message.body+" added to domain whitelist for /r/"+message.subject+"by /u/"+message.author.name)
+                                message.mark_as_read()
+                                continue
+                        #user whitelist
+                        elif self.is_valid_username(message.body):
+                            if message.body in self.options[message.subject]['user_whitelist']:
+                                self.options[message.subject]['user_whitelist'].remove(message.body)
+                                print("/u/"+message.body+" removed from user whitelist for /r/"+message.subject)
+                                message.reply(message.body+" removed from user whitelist for /r/"+message.subject)
+                                r.edit_wiki_page(master_subreddit,"options",str(self.options),reason=message.body+" removed from user whitelist for /r/"+message.subject+"by /u/"+message.author.name)
+                                message.mark_as_read()
+                                continue
+                            else:
+                                self.options[message.subject]['user_whitelist'].append(message.body)
+                                print(message.body+" added to user whitelist for /r/"+message.subject)
+                                message.reply(message.body+" added to user whitelist for /r/"+message.subject)
+                                r.edit_wiki_page(master_subreddit,"options",str(self.options),reason=message.body+" added to domain whitelist for /r/"+message.subject+"by /u/"+message.author.name)
+                                message.mark_as_read()
+                        else:
+                            print("garbage message from /u/"+message.author.name)
+                            r.send_message(message.author,"Error","This doesn't look like a valid username or domain:\n\n"+message.body)
+                            message.mark_as_read()
+                else:
+                    print("invalid message from /u/"+message.author.name)
+                    r.send_message(message.author,"Error","You are not a moderator of /r/"+message.subject)
+                    message.mark_as_read()
+            except:
+                pass
+            
+    def is_valid_domain(self, domain):
+        if re.search("^[a-zA-Z0-9][-.a-zA-Z0-9]*\.[-.a-zA-Z0-9]*[a-zA-Z0-9]$",domain):
+            return True
+        else:
+            return False
+
+    def is_valid_username(self, username):
+        
+        if re.search("^/?u/[A-Za-z0-9_-]{3,20}$",username):
+            return True
+        else:
+            return False
                 
     #@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)        
     def run(self):
