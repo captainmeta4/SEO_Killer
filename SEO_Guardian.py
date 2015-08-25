@@ -100,12 +100,16 @@ class Bot(object):
         #determine if message needs to be assembled
         #variables here are taken from config parameters to avoid giving too much info to spammers
         #(also allows for easy on-the-fly adjustment of parameters)
-        if (action=='return'                                                            #If this was a request,
-            or total_users < int(float(os.environ.get('user_ratio')) * total_posts)     #or if number of unique authors is low compared to number of total posts
+        spam=False
+        
+        if (total_users < int(float(os.environ.get('user_ratio')) * total_posts)        #or if number of unique authors is low compared to number of total posts
             or total_users * float(os.environ.get('sb_ratio')) < shadowbanned_users     #or if number of shadowbanned users is a high fraction of total unique authors
             or throwaway_users >= float(os.environ.get('throwaway_ratio'))*len(authors) #or if there are too many submissions by throwaway accounts
             or spamming_users >= float(os.environ.get('spammer_threshold'))):           #or if this domain is being spammed by too many users
 
+            spam=True
+            
+        if action='return':
             print('assembling message')
             
             msg=("["+domain+"](http://reddit.com/domain/"+domain+") has "+str(total_posts)+" submissions by at least "+str(total_users)+" unique users, of whom "+str(shadowbanned_users)+" are shadowbanned."
@@ -133,12 +137,10 @@ class Bot(object):
                         percent='-'
                         
                     msg=msg+"| u/"+authors[x]+"|"+str(author_total_posts[x])+"|"+str(author_domain_posts[x])+"|"+percent+"% |\n"
-                
-            if action == 'submit':
-                print('submitting to /r/SEO_Killer')
-                r.submit("SEO_Killer","overview for "+domain,text=msg, send_replies=False)
-            elif action == 'return':
-                return msg
+            
+            return msg
+        elif action=='report':
+            return spam
 
     @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def login_bot(self):
@@ -224,11 +226,14 @@ class Bot(object):
                 continue
 
             self.already_done['domains'].append(submission.domain)
-            self.analyze_domain(submission.domain, 'submit')
+            flag = self.analyze_domain(submission.domain, 'submit')
 
             #check to see if the domain was popped for low submission count, and if so, record the id
             if submission.domain not in self.already_done['domains']:
                 self.already_done['submissions'].append(submission.id)
+            
+            if flag:
+                submission.report(reason="This site has fishy submission statistics")
             
             break #just do one submission and then rerun cycle to check messages
 
