@@ -424,7 +424,7 @@ class Bot(object):
 
             print('running cycle')
 
-            self.check_for_new_subreddits()
+            self.check_messages()
             self.load_options()
 
             for subreddit in r.get_my_moderation(limit=None):
